@@ -50,7 +50,7 @@ frame=single
 \newcommand{\mat}[1]{\mathbf{#1}}
 
 \title{\textbf{From Bits to Pixels} \\
-\large The Mathematical and Physical Foundations of 3D Graphics}
+\large The Mathematical and Physical Foundations of elementary 3D Graphics}
 \author{Jack Wetherell}
 \date{}
 
@@ -165,17 +165,50 @@ These bytes are interpreted according to the IEEE 754 structure:
     \underbrace{m}_{23\ \text{bits}}
 \end{equation}
 
-Thus, a raw bit pattern:
+\paragraph{Example: Representing $x = 7.98$}
+
+The decimal number $7.98$ cannot be represented exactly in binary, so it is approximated.
+
+Its IEEE 754 single-precision representation is:
 
 \begin{equation}
-    01000001001000000000000000000000
+    x \approx 7.980000019073486
 \end{equation}
 
-can be decoded into:
+Binary layout:
 
 \begin{equation}
-    x = 10.0
+    0\ 10000001\ 11111111001100110011010
 \end{equation}
+
+Breaking this down:
+
+\begin{itemize}
+    \item Sign bit:
+    \begin{equation}
+        s = 0 \quad (\text{positive})
+    \end{equation}
+
+    \item Exponent:
+    \begin{equation}
+        e = 10000001_2 = 129_{10}
+    \end{equation}
+    \begin{equation}
+        e_{\text{unbiased}} = 129 - 127 = 2
+    \end{equation}
+
+    \item Mantissa:
+    \begin{equation}
+        m = 1.1111111001100110011010_2
+    \end{equation}
+\end{itemize}
+
+Reconstructing the value:
+
+\begin{equation}
+    x = (-1)^0 \cdot (1 + m_{\text{fraction}}) \cdot 2^2
+\end{equation}
+
 
 \paragraph{Key Insight:}
 

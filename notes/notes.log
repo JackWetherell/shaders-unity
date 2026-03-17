@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.5)  5 APR 2026 19:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.5)  5 APR 2026 23:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -689,7 +689,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[3] (notes.aux)
+[3]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[4] (notes.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -698,13 +706,13 @@ Package rerunfilecheck Info: File `notes.out' has not changed.
 (rerunfilecheck)             Checksum: 65A22DC1B5D4F639B8664083BFEC2216;1041.
  ) 
 Here is how much of TeX's memory you used:
- 16803 strings out of 467871
- 269137 string characters out of 5418377
- 730514 words of memory out of 5000000
+ 16809 strings out of 467871
+ 269198 string characters out of 5418377
+ 731525 words of memory out of 5000000
  45419 multiletter control sequences out of 15000+600000
  657992 words of font info for 85 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,11n,79p,1004b,525s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1004b,525s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pf
 b><C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pf
 b><C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pf
@@ -717,9 +725,9 @@ C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:
 /Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/
 Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/m
 sbm10.pfb>
-Output written on notes.pdf (3 pages, 187157 bytes).
+Output written on notes.pdf (4 pages, 190321 bytes).
 PDF statistics:
- 121 PDF objects out of 1000 (max. 8388607)
- 22 named destinations out of 1000 (max. 500000)
+ 131 PDF objects out of 1000 (max. 8388607)
+ 28 named destinations out of 1000 (max. 500000)
  18465 words of extra memory for PDF output out of 20736 (max. 10000000)
 
