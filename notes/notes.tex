@@ -234,4 +234,211 @@ All higher-level constructs (vectors, matrices, geometry) are built from:
     \text{Bits} \rightarrow \text{Bytes} \rightarrow \text{Floats} \rightarrow \text{Mathematical Objects}
 \end{equation}
 
+\section{Geometry Representation in Memory}
+
+\subsection{Vertices (Position Vectors)}
+
+A \textbf{vertex} represents a point in 3D space.
+
+In its simplest form, a vertex consists of three floating-point values:
+
+\begin{equation}
+    \mathbf{v} =
+    \begin{bmatrix}
+        x \\
+        y \\
+        z
+    \end{bmatrix}
+    \in \mathbb{R}^3
+\end{equation}
+
+For transformation purposes, vertices are often expressed in homogeneous coordinates:
+
+\begin{equation}
+    \mathbf{v}_h =
+    \begin{bmatrix}
+        x \\
+        y \\
+        z \\
+        1
+    \end{bmatrix}
+    \in \mathbb{R}^4
+\end{equation}
+
+\paragraph{Memory Representation:}
+
+Each coordinate is a 32-bit float:
+
+\begin{equation}
+    \text{vertex} = [x, y, z]
+\end{equation}
+
+\begin{equation}
+    \text{size of vertex} = 3 \times 4\ \text{bytes} = 12\ \text{bytes}
+\end{equation}
+
+Thus, a vertex buffer is:
+
+\begin{equation}
+    V = [\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_n]
+\end{equation}
+
+
+\subsection{Triangles (Faces)}
+
+The fundamental rendering primitive is the \textbf{triangle}.
+
+A triangle is defined by three vertices:
+
+\begin{equation}
+    \triangle = (\mathbf{v}_0, \mathbf{v}_1, \mathbf{v}_2)
+\end{equation}
+
+Geometrically, any point inside the triangle can be expressed using barycentric coordinates:
+
+\begin{equation}
+    \mathbf{p} = \alpha \mathbf{v}_0 + \beta \mathbf{v}_1 + \gamma \mathbf{v}_2
+\end{equation}
+
+subject to:
+
+\begin{equation}
+    \alpha + \beta + \gamma = 1, \quad \alpha, \beta, \gamma \geq 0
+\end{equation}
+
+\paragraph{Memory Representation (Non-Indexed):}
+
+Each triangle stores three full vertices:
+
+\begin{equation}
+    \text{triangle size} = 3 \times 12\ \text{bytes} = 36\ \text{bytes}
+\end{equation}
+
+
+\subsection{Indexed vs Non-Indexed Geometry}
+
+\paragraph{Non-Indexed Representation:}
+
+Each triangle explicitly stores its vertices:
+
+\begin{equation}
+    T = [\mathbf{v}_0, \mathbf{v}_1, \mathbf{v}_2]
+\end{equation}
+
+This leads to duplication of shared vertices.
+
+\paragraph{Indexed Representation:}
+
+Vertices are stored once in a vertex buffer:
+
+\begin{equation}
+    V = [\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_n]
+\end{equation}
+
+Triangles are defined using indices:
+
+\begin{equation}
+    F = [(i_0, i_1, i_2), (i_3, i_4, i_5), (i_6, i_7, i_8)]
+\end{equation}
+
+Where winding order is used to specify face direction.
+
+Each index refers to a vertex:
+
+\begin{equation}
+    \triangle_k = (\mathbf{v}_{i_a}, \mathbf{v}_{i_b}, \mathbf{v}_{i_c})
+\end{equation}
+
+\paragraph{Memory Efficiency:}
+
+Let:
+\begin{equation}
+    n_v = \text{number of vertices}, \quad n_t = \text{number of triangles}
+\end{equation}
+
+Then:
+
+\begin{equation}
+    \text{non-indexed size} = 36 \cdot n_t
+\end{equation}
+
+\begin{equation}
+    \text{indexed size} = 12 \cdot n_v + 12 \cdot n_t
+\end{equation}
+
+(assuming 32-bit indices)
+
+\subsection{Meshes (Objects)}
+
+A \textbf{mesh} (object) consists of:
+
+\begin{itemize}
+    \item A vertex buffer $V$
+    \item An index buffer $F$
+\end{itemize}
+
+\begin{equation}
+    \mathcal{M} = (V, F)
+\end{equation}
+
+The mesh is defined in \textbf{local (object) space}, meaning:
+
+\begin{equation}
+    \mathbf{v}_{local} \in \mathbb{R}^3
+\end{equation}
+
+All vertices are expressed relative to the object's origin:
+
+\begin{equation}
+    \mathbf{o}_{local} = (0,0,0)
+\end{equation}
+
+
+\subsection{Scenes as Collections of Objects}
+
+A \textbf{scene} consists of multiple objects:
+
+\begin{equation}
+    \mathcal{S} = \{\mathcal{M}_1, \mathcal{M}_2, \dots, \mathcal{M}_k\}
+\end{equation}
+
+Each object has an associated transformation:
+
+\begin{equation}
+    M_i \in \mathbb{R}^{4 \times 4}
+\end{equation}
+
+which maps local coordinates to world coordinates:
+
+\begin{equation}
+    \mathbf{v}_{world} = M_i \mathbf{v}_{local}
+\end{equation}
+
+\paragraph{Global Interpretation:}
+
+All objects share a common coordinate system:
+
+\begin{equation}
+    \mathbf{v}_{world} \in \mathbb{R}^3
+\end{equation}
+
+Thus, the scene becomes a unified collection of geometry in world space.
+
+\paragraph{Final Structure in Memory:}
+
+\begin{equation}
+    \text{Scene} =
+    \big\{
+    (V_1, F_1, M_1),
+    (V_2, F_2, M_2),
+    \dots
+    \big\}
+\end{equation}
+
+Each component ultimately reduces to:
+
+\begin{equation}
+    \text{Bytes} \rightarrow \text{Floats} \rightarrow \text{Vertices} \rightarrow \text{Triangles} \rightarrow \text{Meshes} \rightarrow \text{Scene}
+\end{equation}
+
 \end{document}
