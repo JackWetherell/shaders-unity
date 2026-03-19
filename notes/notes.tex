@@ -441,4 +441,264 @@ Each component ultimately reduces to:
     \text{Bytes} \rightarrow \text{Floats} \rightarrow \text{Vertices} \rightarrow \text{Triangles} \rightarrow \text{Meshes} \rightarrow \text{Scene}
 \end{equation}
 
+\section{Coordinate Systems and Spaces}
+
+In computer graphics, geometry is transformed through a sequence of coordinate systems. Each space provides a different frame of reference for interpreting vertex positions.
+
+\begin{equation}
+    \mathbf{v}_{local}
+    \rightarrow
+    \mathbf{v}_{world}
+    \rightarrow
+    \mathbf{v}_{camera}
+    \rightarrow
+    \mathbf{v}_{clip}
+    \rightarrow
+    \mathbf{v}_{ndc}
+    \rightarrow
+    \mathbf{v}_{screen}
+\end{equation}
+
+
+\subsection{Local (Object) Space}
+
+Local space (or object space) is the coordinate system in which a mesh is originally defined.
+
+\begin{equation}
+    \mathbf{v}_{local} =
+    \begin{bmatrix}
+        x \\
+        y \\
+        z \\
+        1
+    \end{bmatrix}
+\end{equation}
+
+Key properties:
+
+\begin{itemize}
+    \item Origin is the object's center:
+    \begin{equation}
+        \mathbf{o}_{local} = (0,0,0)
+    \end{equation}
+    \item Basis vectors define the object's orientation:
+    \begin{equation}
+        \{\mathbf{e}_x^{local}, \mathbf{e}_y^{local}, \mathbf{e}_z^{local}\}
+    \end{equation}
+\end{itemize}
+
+Vertices are stored in this space in memory.
+
+
+\subsection{World Space}
+
+World space is a global coordinate system shared by all objects in the scene.
+
+Each object is placed into world space using a model transformation:
+
+\begin{equation}
+    \mathbf{v}_{world} = M_{model} \mathbf{v}_{local}
+\end{equation}
+
+where:
+
+\begin{equation}
+    M_{model} = T \cdot R \cdot S
+\end{equation}
+
+Explicitly:
+
+\begin{equation}
+    M_{model} =
+    \begin{bmatrix}
+        r_{11}S_x & r_{12}S_y & r_{13}S_z & t_x \\
+        r_{21}S_x & r_{22}S_y & r_{23}S_z & t_y \\
+        r_{31}S_x & r_{32}S_y & r_{33}S_z & t_z \\
+        0 & 0 & 0 & 1
+    \end{bmatrix}
+\end{equation}
+
+Key properties:
+
+\begin{itemize}
+    \item Common reference frame for all objects
+    \item Fixed global basis:
+    \begin{equation}
+        \{\mathbf{e}_x^{world}, \mathbf{e}_y^{world}, \mathbf{e}_z^{world}\}
+    \end{equation}
+\end{itemize}
+
+
+\subsection{Camera (View) Space}
+
+Camera space (or view space) represents coordinates relative to the camera.
+
+Instead of moving the camera, we transform the world:
+
+\begin{equation}
+    \mathbf{v}_{camera} = M_{view} \mathbf{v}_{world}
+\end{equation}
+
+The view matrix is the inverse of the camera transform:
+
+\begin{equation}
+    M_{view} = (T_{cam} R_{cam})^{-1}
+\end{equation}
+
+If the camera has position $\mathbf{c}$ and rotation $R_{cam}$:
+
+\begin{equation}
+    M_{view} =
+    \begin{bmatrix}
+        R_{cam}^T & -R_{cam}^T \mathbf{c} \\
+        0 & 1
+    \end{bmatrix}
+\end{equation}
+
+Key properties:
+
+\begin{itemize}
+    \item Camera is located at origin:
+    \begin{equation}
+        \mathbf{o}_{camera} = (0,0,0)
+    \end{equation}
+    \item Viewing direction typically along negative z-axis
+\end{itemize}
+
+
+\subsection{Clip Space}
+
+Clip space is obtained by applying the projection matrix:
+
+\begin{equation}
+    \mathbf{v}_{clip} = M_{proj} \mathbf{v}_{camera}
+\end{equation}
+
+A standard perspective projection matrix is:
+
+\begin{equation}
+    M_{proj} =
+    \begin{bmatrix}
+        \frac{1}{a \tan(\frac{\mathrm{fov}}{2})} & 0 & 0 & 0 \\
+        0 & \frac{1}{\tan(\frac{\mathrm{fov}}{2})} & 0 & 0 \\
+        0 & 0 & \frac{f+n}{n-f} & \frac{2fn}{n-f} \\
+        0 & 0 & -1 & 0
+    \end{bmatrix}
+\end{equation}
+
+where:
+
+\begin{equation}
+    a = \text{aspect ratio}, \quad n = \text{near plane}, \quad f = \text{far plane} \quad \mathrm{fov} = \mathrm{field\ of\ view}
+\end{equation}
+
+Vertices in clip space are 4D:
+
+\begin{equation}
+    \mathbf{v}_{clip} =
+    \begin{bmatrix}
+        x_c \\
+        y_c \\
+        z_c \\
+        w_c
+    \end{bmatrix}
+\end{equation}
+
+
+\subsection{Normalized Device Coordinates (NDC)}
+
+To obtain normalized device coordinates, perform the perspective divide:
+
+\begin{equation}
+    \mathbf{v}_{ndc} =
+    \begin{bmatrix}
+        x_c / w_c \\
+        y_c / w_c \\
+        z_c / w_c
+    \end{bmatrix}
+\end{equation}
+
+This maps coordinates into a canonical cube:
+
+\begin{equation}
+    x, y, z \in [-1, 1]
+\end{equation}
+
+Key properties:
+
+\begin{itemize}
+    \item Removes perspective distortion via division by $w$
+    \item Enables uniform clipping and rasterization
+\end{itemize}
+
+
+\subsection{Screen Space}
+
+Screen space maps normalized coordinates to pixel coordinates.
+
+For a viewport of width $W$ and height $H$:
+
+\begin{equation}
+    x_{screen} = \frac{W}{2} (x_{ndc} + 1)
+\end{equation}
+
+\begin{equation}
+    y_{screen} = \frac{H}{2} (1 - y_{ndc})
+\end{equation}
+
+\begin{equation}
+    z_{screen} = \frac{1}{2}(z_{ndc} + 1)
+\end{equation}
+
+Final screen coordinate:
+
+\begin{equation}
+    \mathbf{v}_{screen} =
+    \begin{bmatrix}
+        x_{screen} \\
+        y_{screen} \\
+        z_{screen}
+    \end{bmatrix}
+\end{equation}
+
+
+\subsection{Summary of Transform Pipeline}
+
+The full transformation pipeline is:
+
+\begin{equation}
+    \mathbf{v}_{clip} =
+    M_{proj} \cdot
+    M_{view} \cdot
+    M_{model} \cdot
+    \mathbf{v}_{local}
+\end{equation}
+
+Followed by:
+
+\begin{equation}
+    \mathbf{v}_{ndc} = \frac{1}{w} \mathbf{v}_{clip}
+\end{equation}
+
+\begin{equation}
+    \mathbf{v}_{screen} = \text{Viewport}(\mathbf{v}_{ndc})
+\end{equation}
+
+\subsection{Conceptual Interpretation}
+
+Each transformation corresponds to a change of coordinate system:
+
+\begin{equation}
+    \text{Local} \rightarrow \text{World} \rightarrow \text{Camera} \rightarrow \text{Clip} \rightarrow \text{Screen}
+\end{equation}
+
+At every stage:
+
+\begin{itemize}
+    \item Coordinates are expressed relative to a specific basis
+    \item Matrix multiplication re-expresses vectors in a new basis
+\end{itemize}
+
+Thus, the entire graphics pipeline can be viewed as a sequence of basis transformations applied to vertex data.
+
 \end{document}
