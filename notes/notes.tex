@@ -890,4 +890,246 @@ Key steps:
 
 Thus, rasterization bridges continuous geometry and discrete image representation.
 
+\section{Memory Layout of Graphics Data}
+
+All geometric data in a graphics pipeline is ultimately stored as structured sequences of bytes in memory (CPU RAM or GPU VRAM). These structures are designed for efficient access and parallel processing.
+
+\subsection{Vertex Buffers}
+
+A \textbf{vertex buffer} stores a sequence of vertices:
+
+\begin{equation}
+    V = [\mathbf{v}_0, \mathbf{v}_1, \dots, \mathbf{v}_{n-1}]
+\end{equation}
+
+Each vertex typically contains multiple attributes:
+
+\begin{equation}
+    \mathbf{v}_i =
+    \begin{bmatrix}
+        x_i, y_i, z_i, w_i, \;
+        n_x, n_y, n_z, \;
+        u, v, \;
+        \dots
+    \end{bmatrix}
+\end{equation}
+
+\paragraph{Memory Layout:}
+
+Each attribute is stored as a float (4 bytes):
+
+\begin{equation}
+    \text{size of vertex} = k \cdot 4\ \text{bytes}
+\end{equation}
+
+where $k$ is the number of float components.
+
+\paragraph{Example (Position Only):}
+
+\begin{equation}
+    \mathbf{v}_i = (x, y, z)
+\end{equation}
+
+\begin{equation}
+    \text{vertex size} = 3 \times 4 = 12\ \text{bytes}
+\end{equation}
+
+\paragraph{Contiguous Storage:}
+
+\begin{equation}
+    \text{Vertex Buffer} =
+    [x_0, y_0, z_0, \; x_1, y_1, z_1, \; \dots]
+\end{equation}
+
+
+\subsection{Index Buffers}
+
+An \textbf{index buffer} defines how vertices form triangles.
+
+\begin{equation}
+    F = [(i_0, i_1, i_2), (i_3, i_4, i_5), \dots]
+\end{equation}
+
+Each index refers to a vertex in the vertex buffer:
+
+\begin{equation}
+    \triangle_k =
+    (\mathbf{v}_{i_a}, \mathbf{v}_{i_b}, \mathbf{v}_{i_c})
+\end{equation}
+
+\paragraph{Memory Representation:}
+
+Indices are typically stored as integers:
+
+\begin{equation}
+    \text{index size} =
+    \begin{cases}
+        2\ \text{bytes (16-bit)} \\
+        4\ \text{bytes (32-bit)}
+    \end{cases}
+\end{equation}
+
+\paragraph{Example:}
+
+\begin{equation}
+    F = [0, 1, 2, \; 2, 3, 0]
+\end{equation}
+
+This represents two triangles sharing vertices.
+
+
+\subsection{Transformation Storage}
+
+Each object in a scene has an associated transformation matrix:
+
+\begin{equation}
+    M \in \mathbb{R}^{4 \times 4}
+\end{equation}
+
+\paragraph{Matrix Layout:}
+
+\begin{equation}
+    M =
+    \begin{bmatrix}
+        m_{11} & m_{12} & m_{13} & m_{14} \\
+        m_{21} & m_{22} & m_{23} & m_{24} \\
+        m_{31} & m_{32} & m_{33} & m_{34} \\
+        m_{41} & m_{42} & m_{43} & m_{44}
+    \end{bmatrix}
+\end{equation}
+
+\paragraph{Memory Size:}
+
+\begin{equation}
+    \text{matrix size} = 16 \times 4 = 64\ \text{bytes}
+\end{equation}
+
+\paragraph{Storage Format:}
+
+Matrices are stored as a flat array:
+
+\begin{equation}
+    [m_{11}, m_{12}, \dots, m_{44}]
+\end{equation}
+
+\paragraph{Note:}
+
+Different APIs may use:
+\begin{itemize}
+    \item Row-major order
+    \item Column-major order
+\end{itemize}
+
+
+\subsection{Estimating Memory Usage}
+
+Let:
+
+\begin{equation}
+    n_v = \text{number of vertices}
+\end{equation}
+
+\begin{equation}
+    n_t = \text{number of triangles}
+\end{equation}
+
+\begin{equation}
+    k = \text{floats per vertex}
+\end{equation}
+
+\paragraph{Vertex Buffer Size:}
+
+\begin{equation}
+    \text{size}_V = n_v \cdot k \cdot 4
+\end{equation}
+
+\paragraph{Index Buffer Size:}
+
+Each triangle uses 3 indices:
+
+\begin{equation}
+    \text{size}_F = n_t \cdot 3 \cdot s_i
+\end{equation}
+
+where:
+
+\begin{equation}
+    s_i \in \{2, 4\}\ \text{bytes}
+\end{equation}
+
+\paragraph{Transformation Size:}
+
+For $n_o$ objects:
+
+\begin{equation}
+    \text{size}_M = n_o \cdot 64
+\end{equation}
+
+
+\paragraph{Total Memory:}
+
+\begin{equation}
+    \text{Total} =
+    \text{size}_V +
+    \text{size}_F +
+    \text{size}_M
+\end{equation}
+
+\subsection{Example: Pyramid}
+
+Consider a pyramid with:
+
+\begin{itemize}
+    \item $n_v = 5$ vertices
+    \item $n_t = 6$ triangles
+    \item $k = 3$ (position only)
+\end{itemize}
+
+\paragraph{Vertex Memory:}
+
+\begin{equation}
+    \text{size}_V = 5 \cdot 3 \cdot 4 = 60\ \text{bytes}
+\end{equation}
+
+\paragraph{Index Memory (32-bit):}
+
+\begin{equation}
+    \text{size}_F = 6 \cdot 3 \cdot 4 = 72\ \text{bytes}
+\end{equation}
+
+\paragraph{Transform:}
+
+\begin{equation}
+    \text{size}_M = 64\ \text{bytes}
+\end{equation}
+
+\paragraph{Total:}
+
+\begin{equation}
+    \text{Total} = 60 + 72 + 64 = 196\ \text{bytes}
+\end{equation}
+
+\subsection{Summary}
+
+Graphics data in memory is structured as:
+
+\begin{equation}
+    \text{Scene} =
+    \{(V_i, F_i, M_i)\}_{i=1}^{n_o}
+\end{equation}
+
+Each component is stored as contiguous bytes:
+
+\begin{equation}
+    \text{Bytes} \rightarrow \text{Floats} \rightarrow \text{Vertices} \rightarrow \text{Triangles} \rightarrow \text{Objects}
+\end{equation}
+
+Efficient layout enables:
+
+\begin{itemize}
+    \item Coalesced memory access on GPU
+    \item Parallel processing of vertices
+    \item High throughput rendering
+\end{itemize}
+
 \end{document}
