@@ -1132,4 +1132,195 @@ Efficient layout enables:
     \item High throughput rendering
 \end{itemize}
 
+\section{Specialized Hardware in GPUs}
+
+Modern GPUs are highly specialized processors designed to execute large numbers of similar operations in parallel. Over time, they have evolved from fixed-function graphics devices to programmable, massively parallel compute units with dedicated hardware for specific tasks.
+
+\subsection{Graphics Pipelines and Fixed Function Units}
+
+Early GPUs implemented a \textbf{fixed-function pipeline}, where each stage of the rendering process was hardwired.
+
+The classical pipeline can be represented as:
+
+\begin{equation}
+    \mathbf{v}_{clip} =
+    M_{proj} \cdot M_{view} \cdot M_{model} \cdot \mathbf{v}_{local}
+\end{equation}
+
+followed by rasterization:
+
+\begin{equation}
+    \text{Triangles} \rightarrow \text{Fragments} \rightarrow \text{Pixels}
+\end{equation}
+
+\paragraph{Fixed-Function Stages:}
+
+\begin{itemize}
+    \item Vertex transformation
+    \item Primitive assembly
+    \item Clipping
+    \item Rasterization
+    \item Depth testing
+\end{itemize}
+
+These stages were implemented directly in hardware, meaning:
+
+\begin{equation}
+    \text{Transformation} = \text{Dedicated combinational logic}
+\end{equation}
+
+Modern GPUs replace most fixed-function stages with programmable shaders:
+
+\begin{equation}
+    \text{Vertex Shader}, \quad \text{Fragment Shader}, \quad \text{Compute Shader}
+\end{equation}
+
+However, some stages (e.g., rasterization, depth testing) remain hardware-accelerated.
+
+\subsection{Ray Tracing Cores (RT Cores)}
+
+Ray tracing computes visibility by tracing rays through a scene.
+
+A ray is defined as:
+
+\begin{equation}
+    \mathbf{r}(t) = \mathbf{o} + t \mathbf{d}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $\mathbf{o}$ is the ray origin
+    \item $\mathbf{d}$ is the direction
+    \item $t \ge 0$
+\end{itemize}
+
+The core operation is ray-geometry intersection:
+
+\begin{equation}
+    \mathbf{r}(t) = \text{surface}
+\end{equation}
+
+For triangles, this involves solving:
+
+\begin{equation}
+    \mathbf{o} + t \mathbf{d} =
+    \alpha \mathbf{v}_0 + \beta \mathbf{v}_1 + \gamma \mathbf{v}_2
+\end{equation}
+
+subject to:
+
+\begin{equation}
+    \alpha + \beta + \gamma = 1
+\end{equation}
+
+RT cores accelerate:
+
+\begin{itemize}
+    \item Ray-triangle intersection
+    \item Ray traversal through acceleration structures (e.g., BVH)
+\end{itemize}
+
+This reduces computational complexity from:
+
+\begin{equation}
+    O(n) \rightarrow O(\log n)
+\end{equation}
+
+for scene traversal.
+
+\subsection{Tensor Cores and Machine Learning}
+
+Tensor cores are specialized units designed for matrix operations.
+
+The fundamental operation is matrix multiplication:
+
+\begin{equation}
+    C = A \cdot B
+\end{equation}
+
+with:
+
+\begin{equation}
+    C_{ij} = \sum_k A_{ik} B_{kj}
+\end{equation}
+
+These operations are central to:
+
+\begin{itemize}
+    \item Neural networks
+    \item Linear algebra
+    \item Physics simulations
+\end{itemize}
+
+Tensor cores perform fused operations:
+
+\begin{equation}
+    D = A \cdot B + C
+\end{equation}
+
+This is known as a \textbf{fused multiply-add (FMA)}.
+
+\paragraph{Key Property:}
+
+These units execute many operations in parallel:
+
+\begin{equation}
+    \text{Throughput} \gg \text{CPU scalar performance}
+\end{equation}
+
+
+\subsection{Evolution of GPU Specialization}
+
+The evolution of GPUs can be understood as increasing specialization of hardware for common computational patterns.
+
+\paragraph{Stage 1: Fixed-Function Graphics}
+
+\begin{equation}
+    \text{Hardwired pipeline for rendering}
+\end{equation}
+
+\paragraph{Stage 2: Programmable Shaders}
+
+\begin{equation}
+    \text{Generalized arithmetic units (ALUs)}
+\end{equation}
+
+\paragraph{Stage 3: General-Purpose GPU (GPGPU)}
+
+\begin{equation}
+    \text{Parallel execution of arbitrary compute kernels}
+\end{equation}
+
+\paragraph{Stage 4: Specialized Accelerators}
+
+\begin{itemize}
+    \item RT cores (ray tracing)
+    \item Tensor cores (matrix operations)
+\end{itemize}
+
+\begin{equation}
+    \text{Specialized hardware} \Rightarrow \text{higher efficiency}
+\end{equation}
+
+
+\subsection{Conceptual Interpretation}
+
+All GPU operations ultimately reduce to:
+
+\begin{equation}
+    \text{Logic Gates} \rightarrow \text{Arithmetic Units} \rightarrow \text{Matrix Operations}
+\end{equation}
+
+Thus:
+
+\begin{equation}
+    \text{Graphics} \approx \text{Linear Algebra} \approx \text{Parallel Computation}
+\end{equation}
+
+The GPU is therefore best understood as:
+
+\begin{equation}
+    \text{A massively parallel linear algebra processor with specialized accelerators}
+\end{equation}
+
 \end{document}
