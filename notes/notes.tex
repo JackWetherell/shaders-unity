@@ -441,6 +441,214 @@ Each component ultimately reduces to:
     \text{Bytes} \rightarrow \text{Floats} \rightarrow \text{Vertices} \rightarrow \text{Triangles} \rightarrow \text{Meshes} \rightarrow \text{Scene}
 \end{equation}
 
+\section{Basis Vectors and Coordinate Consistency}
+
+All vector and matrix operations in graphics implicitly depend on a chosen basis. Understanding how basis vectors are represented and transformed is essential for interpreting coordinate systems and transformation pipelines.
+
+\subsection{Implicit Basis in Matrix Representations}
+
+Any vector is expressed relative to a basis.
+
+Let a basis be:
+
+\begin{equation}
+    \mathcal{B} = \{\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3\}
+\end{equation}
+
+Then a vector $\mathbf{v}$ is written as:
+
+\begin{equation}
+    \mathbf{v} = x \mathbf{e}_1 + y \mathbf{e}_2 + z \mathbf{e}_3
+\end{equation}
+
+In coordinate form:
+
+\begin{equation}
+    [\mathbf{v}]_{\mathcal{B}} =
+    \begin{bmatrix}
+        x \\
+        y \\
+        z
+    \end{bmatrix}
+\end{equation}
+
+\paragraph{Key Insight:}
+
+The components $(x, y, z)$ have meaning only with respect to a basis.
+
+\begin{equation}
+    \text{Coordinates} \neq \text{Vector} \quad \text{(without basis)}
+\end{equation}
+
+\paragraph{Matrices Encode Bases:}
+
+A matrix can be interpreted as a set of basis vectors:
+
+\begin{equation}
+    M =
+    \begin{bmatrix}
+        | & | & | \\
+        \mathbf{c}_1 & \mathbf{c}_2 & \mathbf{c}_3 \\
+        | & | & |
+    \end{bmatrix}
+\end{equation}
+
+where each column $\mathbf{c}_i$ represents a transformed basis vector.
+
+Thus:
+
+\begin{equation}
+    M \mathbf{e}_i = \mathbf{c}_i
+\end{equation}
+
+\subsection{Consistency of Basis in Matrix Multiplication}
+
+Matrix multiplication is only valid when all operands are expressed in a consistent basis.
+
+Given:
+
+\begin{equation}
+    \mathbf{v}' = M \mathbf{v}
+\end{equation}
+
+this implies:
+
+\begin{equation}
+    [\mathbf{v}]_{\mathcal{B}} \rightarrow [\mathbf{v}']_{\mathcal{B}}
+\end{equation}
+
+Both $\mathbf{v}$ and $M$ must be defined relative to the same basis $\mathcal{B}$.
+
+\paragraph{Composition of Transformations:}
+
+For two transformations:
+
+\begin{equation}
+    \mathbf{v}'' = M_2 M_1 \mathbf{v}
+\end{equation}
+
+the intermediate result:
+
+\begin{equation}
+    \mathbf{v}' = M_1 \mathbf{v}
+\end{equation}
+
+must be expressed in the same coordinate system expected by $M_2$.
+
+\paragraph{Key Constraint:}
+
+\begin{equation}
+    M_2 \cdot M_1 \quad \text{is valid only if their bases are aligned}
+\end{equation}
+
+
+\subsection{Local vs World Basis Interpretation}
+
+In graphics, different spaces correspond to different bases.
+
+\paragraph{Local Basis:}
+
+\begin{equation}
+    \mathcal{B}_{local} =
+    \{\mathbf{e}_x^{local}, \mathbf{e}_y^{local}, \mathbf{e}_z^{local}\}
+\end{equation}
+
+Vertices are expressed as:
+
+\begin{equation}
+    [\mathbf{v}]_{local}
+\end{equation}
+
+\paragraph{World Basis:}
+
+\begin{equation}
+    \mathcal{B}_{world} =
+    \{\mathbf{e}_x^{world}, \mathbf{e}_y^{world}, \mathbf{e}_z^{world}\}
+\end{equation}
+
+The model matrix maps between these:
+
+\begin{equation}
+    \mathbf{v}_{world} = M_{model} \mathbf{v}_{local}
+\end{equation}
+
+\paragraph{Interpretation of $M_{model}$:}
+
+\begin{equation}
+    M_{model} =
+    \begin{bmatrix}
+        | & | & | \\
+        \mathbf{e}_x^{local \rightarrow world} &
+        \mathbf{e}_y^{local \rightarrow world} &
+        \mathbf{e}_z^{local \rightarrow world} \\
+        | & | & |
+    \end{bmatrix}
+\end{equation}
+
+Each column describes how a local basis vector is expressed in world coordinates.
+
+
+\subsection{Transform Chains as Basis Transitions}
+
+The full graphics pipeline can be interpreted as a sequence of basis changes:
+
+\begin{equation}
+    \mathbf{v}_{clip} =
+    M_{proj} \cdot M_{view} \cdot M_{model} \cdot \mathbf{v}_{local}
+\end{equation}
+
+Each matrix performs a change of basis:
+
+\begin{itemize}
+    \item $M_{model}$: local $\rightarrow$ world
+    \item $M_{view}$: world $\rightarrow$ camera
+    \item $M_{proj}$: camera $\rightarrow$ clip
+\end{itemize}
+
+Thus:
+
+\begin{equation}
+    [\mathbf{v}]_{local}
+    \rightarrow
+    [\mathbf{v}]_{world}
+    \rightarrow
+    [\mathbf{v}]_{camera}
+    \rightarrow
+    [\mathbf{v}]_{clip}
+\end{equation}
+
+\paragraph{Key Insight:}
+
+Matrix multiplication composes basis transformations:
+
+\begin{equation}
+    M_{total} = M_{proj} \cdot M_{view} \cdot M_{model}
+\end{equation}
+
+so that:
+
+\begin{equation}
+    \mathbf{v}_{clip} = M_{total} \mathbf{v}_{local}
+\end{equation}
+
+
+\subsection{Conceptual Summary}
+
+\begin{itemize}
+    \item Every vector is defined relative to a basis
+    \item Every matrix encodes a transformation of basis vectors
+    \item Matrix multiplication composes consistent basis transformations
+    \item The graphics pipeline is a sequence of basis changes
+\end{itemize}
+
+\begin{equation}
+    \text{Coordinates} + \text{Basis} = \text{Geometric Meaning}
+\end{equation}
+
+\begin{equation}
+    \text{Transformations} = \text{Changes of Basis}
+\end{equation}
+
 \section{Coordinate Systems and Spaces}
 
 In computer graphics, geometry is transformed through a sequence of coordinate systems. Each space provides a different frame of reference for interpreting vertex positions.
