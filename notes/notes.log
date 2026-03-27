@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.5)  5 APR 2026 23:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.5)  5 APR 2026 23:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -824,17 +824,40 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[20] (notes.aux)
+[20]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[21]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[22] (notes.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
-Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: C7C1A4F8D1F7E6C97221A575F3DF6F2C;8507.
+
+
+Package rerunfilecheck Warning: File `notes.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `notes.out':
+(rerunfilecheck)             Before: C7C1A4F8D1F7E6C97221A575F3DF6F2C;8507
+(rerunfilecheck)             After:  BE471E43ACEA29CE8BA35811F9D4266F;10497.
  ) 
 Here is how much of TeX's memory you used:
- 17088 strings out of 467871
- 272670 string characters out of 5418377
+ 17127 strings out of 467871
+ 273146 string characters out of 5418377
  738530 words of memory out of 5000000
  45472 multiletter control sequences out of 15000+600000
  669197 words of font info for 100 fonts, out of 8000000 for 9000
@@ -855,9 +878,9 @@ ers/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Us
 ers/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Use
 rs/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm
 10.pfb>
-Output written on notes.pdf (20 pages, 341888 bytes).
+Output written on notes.pdf (22 pages, 354150 bytes).
 PDF statistics:
- 599 PDF objects out of 1000 (max. 8388607)
- 227 named destinations out of 1000 (max. 500000)
+ 652 PDF objects out of 1000 (max. 8388607)
+ 266 named destinations out of 1000 (max. 500000)
  24929 words of extra memory for PDF output out of 29859 (max. 10000000)
 

@@ -1098,6 +1098,224 @@ Key steps:
 
 Thus, rasterization bridges continuous geometry and discrete image representation.
 
+\section{Lighting and Surface Shading}
+
+Lighting determines how surfaces appear based on their orientation relative to light sources. The fundamental quantity governing lighting is the \textbf{surface normal}.
+
+
+\subsection{Surface Normals}
+
+A surface normal is a unit vector perpendicular to a surface.
+
+For a triangle with vertices:
+
+\begin{equation}
+    \mathbf{v}_0, \quad \mathbf{v}_1, \quad \mathbf{v}_2
+\end{equation}
+
+two edge vectors are:
+
+\begin{equation}
+    \mathbf{e}_1 = \mathbf{v}_1 - \mathbf{v}_0
+\end{equation}
+
+\begin{equation}
+    \mathbf{e}_2 = \mathbf{v}_2 - \mathbf{v}_0
+\end{equation}
+
+The normal is:
+
+\begin{equation}
+    \mathbf{n} = \mathbf{e}_1 \times \mathbf{e}_2
+\end{equation}
+
+Normalized:
+
+\begin{equation}
+    \hat{\mathbf{n}} = \frac{\mathbf{n}}{\|\mathbf{n}\|}
+\end{equation}
+
+
+\subsection{Light Direction}
+
+A directional light is defined by a unit vector:
+
+\begin{equation}
+    \hat{\mathbf{l}} \in \mathbb{R}^3
+\end{equation}
+
+pointing from the surface toward the light source.
+
+
+\subsection{Diffuse Lighting (Lambertian Reflection)}
+
+The simplest lighting model assumes brightness depends on the angle between the surface normal and light direction.
+
+\begin{equation}
+    I = k_d \cdot \max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $I$ is the intensity
+    \item $k_d$ is the diffuse reflectance coefficient
+\end{itemize}
+
+\paragraph{Geometric Interpretation:}
+
+\begin{equation}
+    \hat{\mathbf{n}} \cdot \hat{\mathbf{l}} = \cos\theta
+\end{equation}
+
+Thus:
+
+\begin{equation}
+    I \propto \cos\theta
+\end{equation}
+
+\paragraph{Clamping:}
+
+\begin{equation}
+    \max(0, \cdot)
+\end{equation}
+
+ensures that surfaces facing away from the light receive no illumination.
+
+
+\subsection{Ambient Lighting}
+
+Ambient lighting approximates indirect illumination:
+
+\begin{equation}
+    I_{ambient} = k_a
+\end{equation}
+
+where $k_a$ is a constant.
+
+
+\subsection{Combined Lighting Model}
+
+\begin{equation}
+    I = k_a + k_d \cdot \max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})
+\end{equation}
+
+This is the \textbf{Lambertian shading model}.
+
+
+\subsection{Transforming Normals}
+
+Normals must be transformed correctly when objects are transformed.
+
+Given:
+
+\begin{equation}
+    \mathbf{v}_{world} = M_{model} \mathbf{v}_{local}
+\end{equation}
+
+Normals transform as:
+
+\begin{equation}
+    \mathbf{n}_{world} = (M_{model}^{-1})^T \mathbf{n}_{local}
+\end{equation}
+
+\paragraph{Reason:}
+
+Normals must remain perpendicular to the surface after transformation.
+
+
+\subsection{Basic Shadows (Visibility)}
+
+A point is in shadow if light cannot reach it.
+
+Define a shadow ray:
+
+\begin{equation}
+    \mathbf{r}(t) = \mathbf{p} + t \hat{\mathbf{l}}
+\end{equation}
+
+If this ray intersects another object before reaching the light:
+
+\begin{equation}
+    \exists t > 0 \quad \text{s.t.} \quad \mathbf{r}(t) \in \text{scene}
+\end{equation}
+
+then:
+
+\begin{equation}
+    I = I_{ambient}
+\end{equation}
+
+otherwise:
+
+\begin{equation}
+    I = k_a + k_d \cdot \max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})
+\end{equation}
+
+
+\subsection{Shadow Mapping (Rasterization Approximation)}
+
+In rasterization, shadows are approximated using a depth map.
+
+\paragraph{Step 1: Render from Light's Perspective}
+
+Compute:
+
+\begin{equation}
+    z_{light}(x,y)
+\end{equation}
+
+\paragraph{Step 2: Compare Depth}
+
+For a fragment at position $\mathbf{p}$:
+
+\begin{equation}
+    z_{fragment} > z_{light}
+\end{equation}
+
+implies:
+
+\begin{equation}
+    \text{in shadow}
+\end{equation}
+
+
+\subsection{Interpolation of Normals}
+
+Normals are interpolated across the triangle:
+
+\begin{equation}
+    \mathbf{n}(\mathbf{p}) =
+    \alpha \mathbf{n}_0 + \beta \mathbf{n}_1 + \gamma \mathbf{n}_2
+\end{equation}
+
+Then normalized:
+
+\begin{equation}
+    \hat{\mathbf{n}}(\mathbf{p}) =
+    \frac{\mathbf{n}(\mathbf{p})}{\|\mathbf{n}(\mathbf{p})\|}
+\end{equation}
+
+
+\subsection{Summary}
+
+Lighting depends on:
+
+\begin{equation}
+    \text{Surface Orientation} + \text{Light Direction}
+\end{equation}
+
+Core computation:
+
+\begin{equation}
+    I \propto \hat{\mathbf{n}} \cdot \hat{\mathbf{l}}
+\end{equation}
+
+Thus, shading is fundamentally:
+
+\begin{equation}
+    \text{Geometry} \rightarrow \text{Normals} \rightarrow \text{Dot Products} \rightarrow \text{Perceived Brightness}
+\end{equation}
+
 \section{Memory Layout of Graphics Data}
 
 All geometric data in a graphics pipeline is ultimately stored as structured sequences of bytes in memory (CPU RAM or GPU VRAM). These structures are designed for efficient access and parallel processing.
