@@ -1850,4 +1850,348 @@ The GPU is therefore best understood as:
 
 The entire 3D graphics pipeline, from raw bits in memory to pixels on screen, is a sequence of structured linear algebra operations, executed in parallel across thousands of cores, with specialized hardware handling the most repetitive and performance-critical steps.
 
+\section{Shaders in Practice}
+
+The previous sections described the 3D graphics pipeline in abstract mathematical terms: vertices transformed through coordinate spaces, triangles rasterized into fragments, and fragments shaded with lighting models. In practice, these computations are programmed explicitly by the developer in a \textbf{shader}: a small program that runs on the GPU for every vertex or every fragment.
+
+This section grounds the abstract pipeline in a concrete setting: the Unity game engine, using its \textbf{ShaderLab} file format. ShaderLab is Unity's shader language wrapper, providing a declarative structure (properties, subshaders, passes) that organises how data flows into the GPU. Inside that wrapper, the actual vertex and fragment computations are written in \textbf{HLSL} (High-Level Shading Language), a C-like language that compiles to GPU machine code.
+
+The central question this section answers is: how does geometry stored in memory as bytes become a coloured pixel on screen? The answer is a chain of explicitly programmed and hardware-fixed stages, all orchestrated by the shader file:
+
+\begin{equation}
+    \text{Mesh} + \text{Material}
+    \;\rightarrow\;
+    \text{Vertex Shader (HLSL)}
+    \;\rightarrow\;
+    \text{Rasterizer (hardware)}
+    \;\rightarrow\;
+    \text{Fragment Shader (HLSL)}
+    \;\rightarrow\;
+    \text{Framebuffer}
+\end{equation}
+
+
+\subsection{The ShaderLab File Structure}
+
+A Unity shader is a single \texttt{.shader} text file written in \textbf{ShaderLab}. It defines everything the GPU needs to render a surface: what configurable parameters it exposes, how geometry should be rendered, and what HLSL programs execute at each stage.
+
+The top-level structure is:
+
+\begin{lstlisting}
+Shader "MyShaders/Example"
+{
+    Properties { ... }
+
+    SubShader
+    {
+        Tags { ... }
+
+        Pass
+        {
+            HLSLPROGRAM
+            // vertex and fragment shader HLSL code
+            ENDHLSL
+        }
+    }
+}
+\end{lstlisting}
+
+The three structural blocks serve distinct roles:
+
+\begin{itemize}
+    \item \textbf{Properties}: declares the shader's configurable inputs --- colours, textures, scalar values --- that can be set per-material in the editor or from script
+    \item \textbf{SubShader}: defines a complete rendering strategy. A shader file may contain multiple SubShaders as fallbacks for different hardware; Unity selects the first one the GPU supports
+    \item \textbf{Pass}: contains one draw call's GPU programs. A SubShader can have multiple passes (for example, one pass for geometry and another for shadow casting). Each pass contains the HLSL vertex and fragment shaders
+\end{itemize}
+
+
+\subsection{Properties: Data Passed Into the Shader}
+
+A shader receives data from two sources: the \textbf{mesh} (per-vertex geometry data stored in the vertex buffer) and the \textbf{material} (per-object constants set by the artist or programmer). These correspond to two fundamentally different memory access patterns on the GPU.
+
+\paragraph{Mesh Data (Per-Vertex Attributes):}
+
+Each vertex in the mesh's vertex buffer carries a set of attributes. These are uploaded to the GPU once and read by the vertex shader independently for each vertex. The standard per-vertex attributes are:
+
+\begin{itemize}
+    \item \textbf{Position} $\mathbf{v}_{local} \in \mathbb{R}^3$: the vertex location in local object space
+    \item \textbf{Normal} $\hat{\mathbf{n}} \in \mathbb{R}^3$: unit surface normal at the vertex, used for lighting computations
+    \item \textbf{Tangent} $\hat{\mathbf{t}} \in \mathbb{R}^4$: a vector tangent to the surface; the fourth component encodes handedness (the sign of the bitangent), required for normal mapping
+    \item \textbf{UV coordinates} $(u, v) \in [0,1]^2$: texture sampling coordinates that map the surface to a 2D texture image
+    \item \textbf{Vertex colour} $(r, g, b, a) \in [0,1]^4$: per-vertex colour data, used for artistic effects or baked lighting
+\end{itemize}
+
+These are exactly the attributes packed into the interleaved vertex buffer described in Section 8.1. The GPU uses the stride to step through the buffer and delivers the correct bytes for each vertex at the start of the vertex shader.
+
+\paragraph{Material Data (Uniform Constants):}
+
+Material data is declared in the \texttt{Properties} block and uploaded to the GPU as \textbf{uniform variables}: values that are constant across all vertices and fragments within a single draw call. They are written once on the CPU side and read many times on the GPU.
+
+\begin{lstlisting}
+Properties
+{
+    _Color       ("Base Colour",  Color)        = (1, 1, 1, 1)
+    _MainTex     ("Albedo Texture", 2D)         = "white" {}
+    _Glossiness  ("Smoothness",  Range(0, 1))   = 0.5
+    _Metallic    ("Metallic",    Range(0, 1))   = 0.0
+}
+\end{lstlisting}
+
+The supported property types are:
+
+\begin{itemize}
+    \item \texttt{Color}: a four-component RGBA value, passed to the shader as a \texttt{float4}
+    \item \texttt{2D}: a 2D texture; the GPU reads texels from it when the shader calls a sample instruction
+    \item \texttt{Float} / \texttt{Range}: a scalar value; \texttt{Range(a, b)} additionally clamps the editor slider to $[a, b]$
+    \item \texttt{Vector}: a four-component \texttt{float4} for arbitrary vector data
+\end{itemize}
+
+The two data sources map directly onto the pipeline structures developed in earlier sections:
+
+\begin{equation}
+    \text{Vertex buffer (VBO)} \;\rightarrow\; \text{per-vertex: position, normal, tangent, UV, colour}
+\end{equation}
+
+\begin{equation}
+    \text{Uniform buffer} \;\rightarrow\; \text{per-draw-call: colour, texture, smoothness, \dots}
+\end{equation}
+
+
+\subsection{The SubShader and Pass}
+
+A \textbf{SubShader} groups passes under shared render state. \textbf{Tags} communicate metadata to Unity's render pipeline:
+
+\begin{lstlisting}
+SubShader
+{
+    Tags { "RenderType" = "Opaque"  "Queue" = "Geometry" }
+    ...
+}
+\end{lstlisting}
+
+\texttt{RenderType} identifies how the surface should be treated (opaque, transparent, etc.), and \texttt{Queue} controls draw order: opaque geometry is drawn before transparent geometry so that the depth buffer resolves visibility correctly.
+
+A \textbf{Pass} configures the fixed-function GPU state and contains the HLSL programs. The render state directives mirror the fixed-function stages described in earlier sections:
+
+\begin{lstlisting}
+Pass
+{
+    Cull  Back
+    ZTest LEqual
+    ZWrite On
+    Blend Off
+
+    HLSLPROGRAM
+    #pragma vertex   vert
+    #pragma fragment frag
+    // ... HLSL code ...
+    ENDHLSL
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item \texttt{Cull Back}: discard triangles whose winding order indicates they face away from the camera (back-face culling, Section 2.3)
+    \item \texttt{ZTest LEqual}: pass fragments whose depth is less than or equal to the stored depth buffer value (Section 5.4)
+    \item \texttt{ZWrite On}: write the fragment's depth to the depth buffer when the test passes
+    \item \texttt{Blend Off}: disable alpha blending; the fragment colour overwrites the framebuffer directly
+\end{itemize}
+
+The \texttt{\#pragma} directives tell the HLSL compiler which functions are the vertex and fragment entry points.
+
+
+\subsection{The Vertex Shader (HLSL)}
+
+The \textbf{vertex shader} is an HLSL function that runs once per vertex. It receives the per-vertex attributes from the vertex buffer and must output a clip-space position. It may also compute additional data --- world-space normals, interpolated UVs --- to pass down to the fragment shader.
+
+\paragraph{Input Struct (Attributes):}
+
+Vertex shader inputs are declared as an HLSL struct. Each field is annotated with a \textbf{semantic}: a keyword that tells the GPU driver which vertex buffer attribute to bind to that field:
+
+\begin{lstlisting}
+struct Attributes
+{
+    float4 positionOS : POSITION;   // local-space position (w = 1)
+    float3 normalOS   : NORMAL;     // local-space surface normal
+    float4 tangentOS  : TANGENT;    // local-space tangent (w = handedness)
+    float2 uv         : TEXCOORD0;  // primary UV coordinates
+    float4 color      : COLOR;      // per-vertex colour
+};
+\end{lstlisting}
+
+\paragraph{Output Struct (Varyings):}
+
+The output struct carries values from the vertex shader through the rasterizer to the fragment shader. These are called \textbf{varyings} because the rasterizer interpolates them across the triangle surface for each fragment:
+
+\begin{lstlisting}
+struct Varyings
+{
+    float4 positionCS : SV_POSITION; // clip-space position (required)
+    float3 normalWS   : TEXCOORD0;   // world-space normal for lighting
+    float2 uv         : TEXCOORD1;   // UV for texture sampling
+    float4 color      : COLOR;       // interpolated vertex colour
+};
+\end{lstlisting}
+
+The semantic \texttt{SV\_POSITION} (System Value Position) is mandatory: it is the clip-space vertex position used by the rasterizer to determine triangle coverage.
+
+\paragraph{Vertex Shader Entry Point:}
+
+The \texttt{vert} function applies the model--view--projection transform and prepares the interpolants:
+
+\begin{lstlisting}
+Varyings vert(Attributes IN)
+{
+    Varyings OUT;
+
+    // Transform position: local -> world -> clip space
+    float4 worldPos = mul(UNITY_MATRIX_M,  IN.positionOS);
+    OUT.positionCS  = mul(UNITY_MATRIX_VP, worldPos);
+
+    // Transform normal using the inverse-transpose of the model matrix
+    // (Section 6.5): preserves perpendicularity under non-uniform scale
+    float3x3 normalMatrix = transpose((float3x3)UNITY_MATRIX_I_M);
+    OUT.normalWS = normalize(mul(normalMatrix, IN.normalOS));
+
+    // UV coordinates and vertex colour pass through unchanged
+    OUT.uv    = IN.uv;
+    OUT.color = IN.color;
+
+    return OUT;
+}
+\end{lstlisting}
+
+Unity supplies built-in matrix uniforms:
+
+\begin{equation}
+    \texttt{UNITY\_MATRIX\_M} = M_{model}, \quad
+    \texttt{UNITY\_MATRIX\_VP} = M_{proj} \cdot M_{view}, \quad
+    \texttt{UNITY\_MATRIX\_I\_M} = M_{model}^{-1}
+\end{equation}
+
+so the combined position transform is exactly:
+
+\begin{equation}
+    \mathbf{v}_{clip} = M_{proj} \cdot M_{view} \cdot M_{model} \cdot \mathbf{v}_{local}
+\end{equation}
+
+as derived in Section 4. Each vertex is processed independently, making the vertex shader trivially parallelisable across the GPU's thousands of shader cores.
+
+
+\subsection{Rasterization (Fixed Hardware Stage)}
+
+After the vertex shader has run on all three vertices of a triangle, the GPU's fixed-function \textbf{rasterizer} takes over. No HLSL is written for this stage; it is implemented entirely in dedicated silicon.
+
+Given the three clip-space positions from the vertex shader:
+
+\begin{equation}
+    \mathbf{p}_{clip}^{(0)}, \quad \mathbf{p}_{clip}^{(1)}, \quad \mathbf{p}_{clip}^{(2)}
+\end{equation}
+
+the rasterizer performs the following steps automatically:
+
+\begin{itemize}
+    \item \textbf{Perspective divide and viewport transform}: converts clip-space coordinates to screen-space pixel positions (Sections 4.5--4.6)
+    \item \textbf{Triangle coverage}: determines which pixel centres lie inside the triangle using edge functions (Section 5.1)
+    \item \textbf{Barycentric interpolation}: computes $(\alpha, \beta, \gamma)$ for each covered pixel and uses them to interpolate all varyings (normals, UVs, colours) with perspective-correct weights (Sections 5.2--5.3)
+    \item \textbf{Depth test}: compares the interpolated depth against the depth buffer and discards occluded fragments (Section 5.4)
+\end{itemize}
+
+Each surviving pixel produces a \textbf{fragment}: an interpolated set of varyings together with a screen-space position, ready for the fragment shader. The rasterizer bridges the programmed vertex stage and the programmed fragment stage without any developer code.
+
+
+\subsection{The Fragment Shader (HLSL)}
+
+The \textbf{fragment shader} is an HLSL function that runs once per fragment. It receives the rasterizer's interpolated varyings and computes the final colour written to the framebuffer.
+
+\paragraph{Fragment Shader Entry Point:}
+
+\begin{lstlisting}
+float4 frag(Varyings IN) : SV_Target
+{
+    // Sample the albedo texture at the interpolated UV coordinates
+    float4 albedo = tex2D(_MainTex, IN.uv) * _Color;
+
+    // Re-normalise the surface normal (interpolation can reduce its length)
+    float3 N = normalize(IN.normalWS);
+
+    // Directional light direction (unit vector toward the light source)
+    float3 L = normalize(_WorldSpaceLightPos0.xyz);
+
+    // Lambertian diffuse term: I proportional to cos(theta) (Section 6.3)
+    float diff = max(0.0, dot(N, L));
+
+    // Combine ambient and diffuse contributions modulated by albedo colour
+    float3 color = albedo.rgb * (_AmbientColor.rgb + diff);
+
+    return float4(color, albedo.a);
+}
+\end{lstlisting}
+
+The semantic \texttt{SV\_Target} marks the return value as the colour to be written to the current render target. The fragment shader has access to three categories of input:
+
+\begin{itemize}
+    \item \textbf{Interpolated varyings}: per-fragment values produced by the rasterizer from the vertex shader outputs (normals, UVs, colours)
+    \item \textbf{Material uniforms}: constants declared in the Properties block (\texttt{\_MainTex}, \texttt{\_Color}, etc.), constant across the draw call
+    \item \textbf{Engine uniforms}: values supplied automatically by Unity, such as \texttt{\_WorldSpaceLightPos0} (directional light direction) and \texttt{\_AmbientColor}
+\end{itemize}
+
+The lighting computation implements the Lambertian shading model derived in Section 6:
+
+\begin{equation}
+    I = k_a + k_d \cdot \max(0,\, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})
+\end{equation}
+
+where $k_d$ is the albedo colour sampled from the texture and $\hat{\mathbf{n}}$ is the per-fragment interpolated world-space normal. The result is a \texttt{float4} RGBA colour that is written to the framebuffer at the pixel's screen-space coordinates.
+
+
+\subsection{Data Flow Summary}
+
+The complete journey from stored data to pixel colour is a sequence of transformations, each stage consuming the output of the previous:
+
+\begin{equation}
+    \text{Mesh (VBO + IBO)}
+    \;\xrightarrow{\text{vertex fetch}}\;
+    \text{Attributes}
+    \;\xrightarrow{\texttt{vert()}}\;
+    \text{Varyings}
+    \;\xrightarrow{\text{rasterizer}}\;
+    \text{Fragments}
+    \;\xrightarrow{\texttt{frag()}}\;
+    \text{Pixel colour}
+\end{equation}
+
+Data enters the pipeline from two sources at two different granularities:
+
+\begin{equation}
+    \begin{cases}
+        \text{Mesh (vertex buffer)} & \rightarrow \text{per-vertex: position, normal, tangent, UV, colour} \\
+        \text{Material (uniform buffer)} & \rightarrow \text{per-draw-call: textures, colours, scalar parameters}
+    \end{cases}
+\end{equation}
+
+The ShaderLab file is the complete specification of this computation:
+
+\begin{equation}
+    \text{ShaderLab} =
+    \underbrace{\text{Properties}}_{\text{data interface}}
+    +
+    \underbrace{\text{Pass state}}_{\text{fixed-function config}}
+    +
+    \underbrace{\text{HLSL programs}}_{\text{programmable stages}}
+\end{equation}
+
+The responsibilities of each stage are:
+
+\begin{itemize}
+    \item \textbf{Vertex shader (HLSL)}: transforms each vertex from local space to clip space; prepares interpolated data to carry to the fragment shader
+    \item \textbf{Rasterizer (fixed hardware)}: determines pixel coverage; interpolates varyings across the triangle with perspective correction; performs depth testing
+    \item \textbf{Fragment shader (HLSL)}: samples textures; evaluates lighting from interpolated normals and material uniforms; outputs a final RGBA colour
+\end{itemize}
+
+Thus, the mathematical pipeline developed throughout these notes --- from bits in memory (Section 1), through geometry (Section 2), coordinate transforms (Sections 3--4), rasterization (Section 5), and lighting (Section 6) --- maps directly and completely onto the structure of a single ShaderLab file, executable on real GPU hardware.
+
+\begin{equation}
+    \text{Bits} \rightarrow \text{Vertices} \rightarrow \text{Clip Space} \rightarrow \text{Fragments} \rightarrow \text{Shading} \rightarrow \text{Pixels}
+\end{equation}
+
 \end{document}

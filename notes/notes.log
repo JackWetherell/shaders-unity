@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.5)  6 APR 2026 00:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.5)  8 APR 2026 23:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -908,22 +908,105 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[29] (notes.aux)
+[29]
+Overfull \hbox (106.39447pt too wide) detected at line 1871
+[][][][] \OT1/lmr/m/n/10.95 + []  \OMS/lmsy/m/n/10.95 !  []  !  []  !  []  !  [
+]
+ []
+
+LaTeX Font Info:    Trying to load font information for OT1+lmtt on input line 
+1876.
+(C:\Users\jackw\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmtt.fd
+File: ot1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `lmtt' (encoding: OT1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[30{C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rmtt.enc
+}]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[31]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[32]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[33]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[34]
+Overfull \hbox (0.87166pt too wide) in paragraph at lines 2135--2136
+[]\OT1/lmr/bx/n/10.95 (-20) Engine uni-forms\OT1/lmr/m/n/10.95 (-20) : val-ues 
+sup-plied au-to-mat-i-cally by Unity, such as []\OT1/lmtt/m/n/10.95 WorldSpaceL
+ightPos0
+ []
+
+
+Overfull \hbox (47.38838pt too wide) detected at line 2161
+[][][][]  []  []  []  []  []  []  []  []
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[35]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[36] (notes.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: BE471E43ACEA29CE8BA35811F9D4266F;10497.
+(rerunfilecheck)             Checksum: 0220073962EA08B8A1DA82034A71DA0E;12092.
  ) 
 Here is how much of TeX's memory you used:
- 17262 strings out of 467871
- 274690 string characters out of 5418377
- 738620 words of memory out of 5000000
- 45487 multiletter control sequences out of 15000+600000
- 678528 words of font info for 158 fonts, out of 8000000 for 9000
+ 17740 strings out of 467871
+ 279891 string characters out of 5418377
+ 979620 words of memory out of 5000000
+ 45811 multiletter control sequences out of 15000+600000
+ 683612 words of font info for 173 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,14n,79p,1004b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,14n,79p,1004b,1990s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pf
 b><C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pf
 b><C:/Users/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pf
@@ -938,11 +1021,13 @@ ers/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Us
 ers/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Us
 ers/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Us
 ers/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Use
-rs/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm
-10.pfb>
-Output written on notes.pdf (29 pages, 420132 bytes).
+rs/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Use
+rs/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt8.pfb><C:/User
+s/jackw/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm1
+0.pfb>
+Output written on notes.pdf (36 pages, 522137 bytes).
 PDF statistics:
- 731 PDF objects out of 1000 (max. 8388607)
- 271 named destinations out of 1000 (max. 500000)
- 27065 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 949 PDF objects out of 1000 (max. 8388607)
+ 399 named destinations out of 1000 (max. 500000)
+ 31225 words of extra memory for PDF output out of 35830 (max. 10000000)
 

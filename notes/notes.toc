@@ -107,3 +107,17 @@
 \contentsline {paragraph}{Stage 3: General-Purpose GPU (GPGPU, mid 2000s)}{29}{equation.181}%
 \contentsline {paragraph}{Stage 4: Specialized Accelerators (present)}{29}{equation.182}%
 \contentsline {subsection}{\numberline {8.5}Conceptual Interpretation}{29}{subsection.8.5}%
+\contentsline {section}{\numberline {9}Shaders in Practice}{30}{section.9}%
+\contentsline {subsection}{\numberline {9.1}The ShaderLab File Structure}{30}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Properties: Data Passed Into the Shader}{31}{subsection.9.2}%
+\contentsline {paragraph}{Mesh Data (Per-Vertex Attributes):}{31}{subsection.9.2}%
+\contentsline {paragraph}{Material Data (Uniform Constants):}{31}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}The SubShader and Pass}{32}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}The Vertex Shader (HLSL)}{32}{subsection.9.4}%
+\contentsline {paragraph}{Input Struct (Attributes):}{32}{subsection.9.4}%
+\contentsline {paragraph}{Output Struct (Varyings):}{33}{lstnumber.-5.8}%
+\contentsline {paragraph}{Vertex Shader Entry Point:}{33}{lstnumber.-6.7}%
+\contentsline {subsection}{\numberline {9.5}Rasterization (Fixed Hardware Stage)}{34}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}The Fragment Shader (HLSL)}{34}{subsection.9.6}%
+\contentsline {paragraph}{Fragment Shader Entry Point:}{34}{subsection.9.6}%
+\contentsline {subsection}{\numberline {9.7}Data Flow Summary}{35}{subsection.9.7}%
