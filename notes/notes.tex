@@ -2144,6 +2144,70 @@ The lighting computation implements the Lambertian shading model derived in Sect
 where $k_d$ is the albedo colour sampled from the texture and $\hat{\mathbf{n}}$ is the per-fragment interpolated world-space normal. The result is a \texttt{float4} RGBA colour that is written to the framebuffer at the pixel's screen-space coordinates.
 
 
+\subsection{Swizzling}
+
+HLSL vectors have named components that can be accessed and recombined freely using \textbf{swizzle notation} — a compact syntax for selecting, reordering, or repeating the scalar elements of a vector in a single expression.
+
+\paragraph{Component names.} Each component of a vector can be referred to by either of two equivalent sets of names:
+
+\begin{itemize}
+    \item \texttt{.xyzw} — positional convention, used when the vector represents a spatial quantity (position, direction, normal)
+    \item \texttt{.rgba} — colour convention, used when the vector represents a colour value
+\end{itemize}
+
+Both sets address the same underlying components in order; \texttt{.x} and \texttt{.r} both refer to the first component. The two sets cannot be mixed within a single swizzle expression.
+
+\paragraph{Reading components.} Any subset of components can be extracted to form a shorter vector:
+
+\begin{lstlisting}
+float4 col = float4(0.8, 0.4, 0.2, 1.0);
+
+float3 rgb  = col.rgb;   // (0.8, 0.4, 0.2)  -- drop alpha
+float2 rg   = col.rg;    // (0.8, 0.4)
+float  a    = col.a;     // 1.0               -- scalar extraction
+
+float3 pos  = col.xyz;   // same components, positional names
+float  z    = col.z;     // 0.2
+\end{lstlisting}
+
+\paragraph{Reordering and repeating components.} Components can appear in any order and may be repeated:
+
+\begin{lstlisting}
+float4 col = float4(0.8, 0.4, 0.2, 1.0);
+
+float4 rev  = col.abgr;  // (1.0, 0.2, 0.4, 0.8)  -- reversed
+float3 grb  = col.grb;   // (0.4, 0.8, 0.2)        -- reordered
+float3 rrr  = col.rrr;   // (0.8, 0.8, 0.8)        -- repeated (greyscale)
+float2 aa   = col.aa;    // (1.0, 1.0)
+\end{lstlisting}
+
+\paragraph{Writing via swizzle.} Swizzle notation is also valid on the left-hand side of an assignment, provided no component is written more than once:
+
+\begin{lstlisting}
+float4 col = float4(0.0, 0.0, 0.0, 1.0);
+col.rgb = float3(0.8, 0.4, 0.2);  // sets r, g, b; leaves a unchanged
+col.xy  = col.yx;                  // swap x and y in place
+\end{lstlisting}
+
+\paragraph{Common patterns in Unity shaders.} Swizzling appears throughout fragment shader code. Typical uses include:
+
+\begin{lstlisting}
+// Extract colour channels from a texture sample (float4 -> float3)
+float4 sample = tex2D(_MainTex, IN.uv);
+float3 albedo  = sample.rgb;
+float  alpha   = sample.a;
+
+// Construct a float4 from a float3 and a literal alpha
+float3 litColor = albedo * diff;
+return float4(litColor, 1.0);
+
+// Re-normalise a float4 position to float3 for arithmetic
+float3 worldPos = IN.positionWS.xyz;
+\end{lstlisting}
+
+Swizzling has zero runtime cost — the GPU compiler resolves component selection at compile time, mapping each swizzle directly onto register lanes in the SIMD execution units.
+
+
 \subsection{Data Flow Summary}
 
 The complete journey from stored data to pixel colour is a sequence of transformations, each stage consuming the output of the previous:

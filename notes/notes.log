@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2026/dev/Arch Linux) (preloaded format=pdflatex 2025.4.20)  11 APR 2026 16:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2026/dev/Arch Linux) (preloaded format=pdflatex 2025.4.20)  12 APR 2026 00:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1007,7 +1007,16 @@ ightPos0
  []
 
 
-Overfull \hbox (47.38838pt too wide) detected at line 2161
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[35]
+Overfull \hbox (47.38838pt too wide) detected at line 2225
 [][][][]  []  []  []  []  []  []  []  []
  []
 
@@ -1020,7 +1029,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[35]
+[36]
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1029,20 +1038,20 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[36] (./notes.aux)
+[37] (./notes.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: 0220073962EA08B8A1DA82034A71DA0E;12092.
+(rerunfilecheck)             Checksum: 55827BF6E95C6D7D9098F0957228B47B;12195.
  ) 
 Here is how much of TeX's memory you used:
- 17779 strings out of 475171
- 276221 string characters out of 5767095
+ 17816 strings out of 475171
+ 276751 string characters out of 5767095
  963450 words of memory out of 5000000
- 39965 multiletter control sequences out of 15000+600000
- 614728 words of font info for 169 fonts, out of 8000000 for 9000
+ 39966 multiletter control sequences out of 15000+600000
+ 614820 words of font info for 170 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  75i,14n,79p,1002b,1977s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf-dis
@@ -1058,10 +1067,10 @@ lmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/share/t
 exmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/p
 ublic/lm/lmtt8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/m
 sbm10.pfb>
-Output written on notes.pdf (36 pages, 426574 bytes).
+Output written on notes.pdf (37 pages, 431559 bytes).
 PDF statistics:
- 959 PDF objects out of 1000 (max. 8388607)
- 877 compressed objects within 9 object streams
- 399 named destinations out of 1000 (max. 500000)
- 31225 words of extra memory for PDF output out of 35830 (max. 10000000)
+ 1012 PDF objects out of 1200 (max. 8388607)
+ 928 compressed objects within 10 object streams
+ 433 named destinations out of 1000 (max. 500000)
+ 31233 words of extra memory for PDF output out of 35830 (max. 10000000)
 
