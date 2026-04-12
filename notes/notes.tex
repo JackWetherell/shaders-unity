@@ -2426,4 +2426,71 @@ The result (Figure~\ref{fig:unlit_render}) is a perfectly uniform red disc. The 
 
 This is the key property of an unlit shader: the rasterizer runs in full, correctly determining which pixels belong to the surface, but the fragment stage treats every one of those pixels identically. The geometry is present in the pipeline, its clip-space position drove the coverage calculation, it is simply not used in the shading decision.
 
+
+\subsection{Vertex vs Fragment: Choosing Where to Compute}
+
+Every arithmetic operation in a shader runs inside one of two loops driven by the GPU. The vertex shader executes once per vertex in the draw call; the fragment shader executes once per fragment, that is, once per pixel covered by the geometry after the rasterizer and depth test. Choosing which stage performs a given computation is therefore a question of how many times each loop body runs.
+
+\paragraph{Counting invocations.}
+
+Let $N_v$ denote the number of vertices in the draw call and $N_f$ the number of surviving fragments. These two quantities are determined by entirely different factors:
+
+\begin{equation}
+    N_v = \text{vertex count of the mesh (a property of the asset)}
+\end{equation}
+
+\begin{equation}
+    N_f \approx W_{screen} \times H_{screen} \times f_{coverage}
+\end{equation}
+
+where $f_{coverage} \in [0, 1]$ is the fraction of the screen the object occupies after projection. $N_v$ is fixed by the mesh regardless of camera distance or screen resolution; $N_f$ scales with the object's projected area.
+
+\paragraph{A concrete estimate.}
+
+The Unity default sphere (the mesh used in this scene) has $N_v = 515$ vertices. Rendered at $1920 \times 1080$ with the sphere covering approximately $20\%$ of the screen:
+
+\begin{equation}
+    N_f \approx 1920 \times 1080 \times 0.20 \approx 415{,}000
+\end{equation}
+
+The ratio is:
+
+\begin{equation}
+    \frac{N_f}{N_v} \approx \frac{415{,}000}{515} \approx 800
+\end{equation}
+
+The fragment shader runs roughly 800 times more often than the vertex shader for this draw call. Any unit of computation moved from the fragment stage to the vertex stage is therefore approximately 800 times cheaper in terms of total GPU work, without any change to the fragment shader's logic.
+
+\paragraph{What can move to the vertex stage.}
+
+The rasterizer interpolates varyings across the triangle surface at zero additional GPU cost (the interpolation runs in fixed hardware, not in programmable shader cores). This means any quantity that varies \emph{linearly} across a triangle can be computed per-vertex, stored in a varying, and recovered per-fragment by interpolation with no shader instruction budget spent.
+
+Computations that are safe to move to the vertex stage:
+
+\begin{itemize}
+    \item \textbf{Position transforms}: the MVP transform \texttt{UnityObjectToClipPos} is already correctly placed in the vertex shader. It is the canonical example of per-vertex work.
+    \item \textbf{Normal transformation}: \texttt{UnityObjectToWorldNormal} transforms the local-space normal to world space using the inverse-transpose of the model matrix (Section 6.5). The transform itself is linear and correct per-vertex. However, the subsequent \texttt{normalize()} call must remain in the fragment shader, because linear interpolation of two unit vectors does not in general produce a unit vector.
+    \item \textbf{UV coordinate transforms}: scaling and offsetting UVs (via \texttt{TRANSFORM\_TEX}) is linear and can be computed per-vertex.
+    \item \textbf{Per-vertex (Gouraud) diffuse lighting}: the Lambertian term $\max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})$ can be evaluated at each vertex and interpolated. This is called \emph{Gouraud shading}. It is cheap, but visually incorrect when the triangle is large on screen, because the Lambertian function is non-linear over the triangle surface and interpolation introduces error.
+\end{itemize}
+
+\paragraph{What must stay in the fragment stage.}
+
+Some computations produce incorrect results if evaluated per-vertex, regardless of the performance saving:
+
+\begin{itemize}
+    \item \textbf{Texture sampling}: \texttt{tex2D(\_MainTex, uv)} must execute per-fragment. The UV coordinates themselves interpolate correctly, but the GPU texture fetch is a per-fragment instruction. Moving it to the vertex stage is not supported for standard 2D textures.
+    \item \textbf{Specular highlights}: the specular term involves $\left(\hat{\mathbf{r}} \cdot \hat{\mathbf{v}}\right)^s$ where $s$ is the shininess exponent. This is highly non-linear and produces visible faceting artefacts when computed per-vertex, because the highlight's peak can fall entirely inside a triangle and be missed if only the vertex values are sampled.
+    \item \textbf{Normal map perturbation}: normal maps modify the surface normal at sub-triangle resolution. The perturbation is read from a texture per-fragment, so the full shading computation must also happen per-fragment.
+    \item \textbf{Renormalisation}: as noted above, interpolated normals are not unit vectors. \texttt{normalize(IN.normalWS)} in the fragment shader corrects this and costs one reciprocal square root per fragment, but skipping it produces incorrect lighting.
+\end{itemize}
+
+\paragraph{Decision rule.}
+
+A computation belongs in the vertex shader when two conditions hold simultaneously: the quantity varies linearly (or near-linearly) across the triangle, and the triangle is small enough on screen that the interpolation error is imperceptible. When either condition fails, the computation must move to the fragment shader. In practice, lighting terms that depend on the surface normal are borderline: the normal transform goes per-vertex, the shading evaluation stays per-fragment. The boundary is always the non-linear operation.
+
+\paragraph{Relevance to the current shader.}
+
+In \texttt{Shader1}, the vertex shader performs the MVP transform (correct, one matrix multiply per vertex) and the fragment shader returns \texttt{\_Color} (a uniform constant, which costs nothing regardless of stage). There is no computation to redistribute. When lighting is introduced, the normal transform will be added to the vertex shader and the $\max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})$ evaluation will go in the fragment shader, with \texttt{normalize} preceding it to correct the interpolated normal length.
+
 \end{document}

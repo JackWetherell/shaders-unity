@@ -137,3 +137,10 @@
 \contentsline {paragraph}{Vertex shader.}{40}{lstnumber.-16.2}%
 \contentsline {paragraph}{Fragment shader.}{40}{equation.199}%
 \contentsline {paragraph}{Render output.}{41}{lstnumber.-18.4}%
+\contentsline {subsection}{\numberline {10.2}Vertex vs Fragment: Choosing Where to Compute}{41}{subsection.10.2}%
+\contentsline {paragraph}{Counting invocations.}{41}{subsection.10.2}%
+\contentsline {paragraph}{A concrete estimate.}{42}{equation.201}%
+\contentsline {paragraph}{What can move to the vertex stage.}{42}{equation.203}%
+\contentsline {paragraph}{What must stay in the fragment stage.}{42}{equation.203}%
+\contentsline {paragraph}{Decision rule.}{43}{equation.203}%
+\contentsline {paragraph}{Relevance to the current shader.}{43}{equation.203}%
