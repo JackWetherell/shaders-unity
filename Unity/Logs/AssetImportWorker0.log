@@ -631,3 +631,13 @@ Start importing Assets/Materials/Shader1.mat using Guid(4effaf2e444d18050bcc048c
  -> (artifact id: '53d321920e859af0ebde8048f2dfba3d') in 0.020063 seconds
 Number of updated asset objects reloaded before import = 0
 Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 341.584178 seconds.
+  path: Assets/Materials/Shader1.mat
+  artifactKey: Guid(4effaf2e444d18050bcc048c2902ee0c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/Shader1.mat using Guid(4effaf2e444d18050bcc048c2902ee0c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) [PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+ -> (artifact id: '754e7440e2e76f0a2f477eabc7768e0f') in 0.032013 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
