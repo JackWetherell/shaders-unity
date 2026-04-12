@@ -1,6 +1,9 @@
-UnityShaders/Library
-UnityShaders/Library/*
-UnityShaders/Temp
-UnityShaders/Temp/*
-UnityShaders/Logs
-UnityShaders/Logs/*
+Unity/Library
+Unity/Library/*
+Unity/Temp
+Unity/Temp/*
+Unity/Logs
+Unity/Logs/*
+Unity/UserSettings
+Unity/UserSettings/*
+notes/notes.pdf
