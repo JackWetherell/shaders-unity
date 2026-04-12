@@ -58,14 +58,14 @@ Freya's series is one of the clearest introductions to shader programming availa
 
 *"From Bits to Pixels"* covers:
 
-1. **Foundations** — binary, bytes, IEEE 754 floating point, memory layout
-2. **Geometry** — vertices, triangles, indexed meshes, scene graphs
-3. **Basis Vectors** — coordinate systems, matrix representations, basis transitions
-4. **Coordinate Spaces** — local, world, camera, clip, NDC, screen space
-5. **Rasterization** — triangle setup, barycentric coordinates, depth testing
-6. **Lighting** — surface normals, Lambertian diffuse, ambient, shadow mapping
-7. **Memory Layout** — vertex buffers, index buffers, transformation storage
-8. **GPU Hardware** — fixed-function units, RT cores, tensor cores
-9. **Shaders in Practice** — ShaderLab structure, Properties, vertex & fragment shaders in HLSL, swizzling, data flow
+1. **Foundations**: binary, bytes, IEEE 754 floating point, memory layout
+2. **Geometry**: vertices, triangles, indexed meshes, scene graphs
+3. **Basis Vectors**: coordinate systems, matrix representations, basis transitions
+4. **Coordinate Spaces**: local, world, camera, clip, NDC, screen space
+5. **Rasterization**: triangle setup, barycentric coordinates, depth testing
+6. **Lighting**: surface normals, Lambertian diffuse, ambient, shadow mapping
+7. **Memory Layout**: vertex buffers, index buffers, transformation storage
+8. **GPU Hardware**: fixed-function units, RT cores, tensor cores
+9. **Shaders in Practice**: ShaderLab structure, Properties, vertex & fragment shaders in HLSL, swizzling, data flow
 
 The document is written alongside the shader experiments so that every equation has a corresponding line of real GPU code.
