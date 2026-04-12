@@ -117,7 +117,7 @@ The CPU and GPU access memory by supplying an address; the hardware returns the 
 
 \subsection{Floating Point Representation (IEEE 754)}
 
-Integers can be stored exactly in binary, but 3D graphics relies heavily on \emph{real} numbers --- positions, angles, colours. Real numbers cannot in general be represented exactly with a finite number of bits, so we use an approximation: \textbf{floating point}.
+Integers can be stored exactly in binary, but 3D graphics relies heavily on \emph{real} numbers, positions, angles, colours. Real numbers cannot in general be represented exactly with a finite number of bits, so we use an approximation: \textbf{floating point}.
 
 The IEEE 754 standard defines the format used by virtually every modern processor and GPU. The key idea is to store numbers in a form analogous to scientific notation: a sign, a significand (the meaningful digits), and an exponent that scales the significand by a power of two.
 
@@ -249,7 +249,7 @@ This chain is not merely theoretical, every vertex shader operand, every matrix 
 
 \section{Geometry Representation in Memory}
 
-Now that we understand how individual numbers are stored, we can build up the geometric structures needed to describe 3D scenes. The central challenge is to represent continuous geometry, surfaces, volumes, objects --- using discrete data structures that can be stored in memory and processed efficiently by the GPU.
+Now that we understand how individual numbers are stored, we can build up the geometric structures needed to describe 3D scenes. The central challenge is to represent continuous geometry, surfaces, volumes, objects, using discrete data structures that can be stored in memory and processed efficiently by the GPU.
 
 \subsection{Vertices (Position Vectors)}
 
@@ -306,7 +306,7 @@ Thus, a vertex buffer is a contiguous array of these structures:
 The fundamental rendering primitive is the \textbf{triangle}. While real-world surfaces are smooth and curved, the GPU approximates them with flat triangular facets. Triangles are chosen rather than other polygons for several important reasons:
 \begin{itemize}
     \item A triangle is always \emph{planar} , three non-collinear points uniquely define a flat surface, so no special handling is needed
-    \item A triangle is always \emph{convex} --- this simplifies rasterization (covered in Section~\ref{sec:rasterization})
+    \item A triangle is always \emph{convex}, this simplifies rasterization (covered in Section~\ref{sec:rasterization})
     \item Any polygon can be decomposed into triangles (\emph{triangulated})
     \item Hardware can be optimized for a single primitive type
 \end{itemize}
@@ -662,7 +662,7 @@ This pre-multiplication is done on the CPU once per object per frame, and the si
 \begin{itemize}
     \item Every vector is defined relative to a basis; coordinates are meaningless without one
     \item Every matrix encodes a transformation of basis vectors, readable from its columns
-    \item Matrix multiplication composes consistent basis transformations --- the output space of one matrix must match the input space of the next
+    \item Matrix multiplication composes consistent basis transformations, the output space of one matrix must match the input space of the next
     \item The graphics pipeline is a sequence of basis changes, each serving a distinct geometric purpose
 \end{itemize}
 
@@ -1899,7 +1899,7 @@ Shader "MyShaders/Example"
 The three structural blocks serve distinct roles:
 
 \begin{itemize}
-    \item \textbf{Properties}: declares the shader's configurable inputs --- colours, textures, scalar values --- that can be set per-material in the editor or from script
+    \item \textbf{Properties}: declares the shader's configurable inputs, colours, textures, scalar values, that can be set per-material in the editor or from script
     \item \textbf{SubShader}: defines a complete rendering strategy. A shader file may contain multiple SubShaders as fallbacks for different hardware; Unity selects the first one the GPU supports
     \item \textbf{Pass}: contains one draw call's GPU programs. A SubShader can have multiple passes (for example, one pass for geometry and another for shadow casting). Each pass contains the HLSL vertex and fragment shaders
 \end{itemize}
@@ -2001,7 +2001,7 @@ The \texttt{\#pragma} directives tell the HLSL compiler which functions are the 
 
 \subsection{The Vertex Shader (HLSL)}
 
-The \textbf{vertex shader} is an HLSL function that runs once per vertex. It receives the per-vertex attributes from the vertex buffer and must output a clip-space position. It may also compute additional data --- world-space normals, interpolated UVs --- to pass down to the fragment shader.
+The \textbf{vertex shader} is an HLSL function that runs once per vertex. It receives the per-vertex attributes from the vertex buffer and must output a clip-space position. It may also compute additional data, world-space normals, interpolated UVs, to pass down to the fragment shader.
 
 \paragraph{Input Struct (Attributes):}
 
@@ -2146,13 +2146,13 @@ where $k_d$ is the albedo colour sampled from the texture and $\hat{\mathbf{n}}$
 
 \subsection{Swizzling}
 
-HLSL vectors have named components that can be accessed and recombined freely using \textbf{swizzle notation} — a compact syntax for selecting, reordering, or repeating the scalar elements of a vector in a single expression.
+HLSL vectors have named components that can be accessed and recombined freely using \textbf{swizzle notation}, a compact syntax for selecting, reordering, or repeating the scalar elements of a vector in a single expression.
 
 \paragraph{Component names.} Each component of a vector can be referred to by either of two equivalent sets of names:
 
 \begin{itemize}
-    \item \texttt{.xyzw} — positional convention, used when the vector represents a spatial quantity (position, direction, normal)
-    \item \texttt{.rgba} — colour convention, used when the vector represents a colour value
+    \item \texttt{.xyzw}, positional convention, used when the vector represents a spatial quantity (position, direction, normal)
+    \item \texttt{.rgba}, colour convention, used when the vector represents a colour value
 \end{itemize}
 
 Both sets address the same underlying components in order; \texttt{.x} and \texttt{.r} both refer to the first component. The two sets cannot be mixed within a single swizzle expression.
@@ -2205,7 +2205,7 @@ return float4(litColor, 1.0);
 float3 worldPos = IN.positionWS.xyz;
 \end{lstlisting}
 
-Swizzling has zero runtime cost — the GPU compiler resolves component selection at compile time, mapping each swizzle directly onto register lanes in the SIMD execution units.
+Swizzling has zero runtime cost, the GPU compiler resolves component selection at compile time, mapping each swizzle directly onto register lanes in the SIMD execution units.
 
 
 \subsection{Data Flow Summary}
@@ -2252,7 +2252,7 @@ The responsibilities of each stage are:
     \item \textbf{Fragment shader (HLSL)}: samples textures; evaluates lighting from interpolated normals and material uniforms; outputs a final RGBA colour
 \end{itemize}
 
-Thus, the mathematical pipeline developed throughout these notes --- from bits in memory (Section 1), through geometry (Section 2), coordinate transforms (Sections 3--4), rasterization (Section 5), and lighting (Section 6) --- maps directly and completely onto the structure of a single ShaderLab file, executable on real GPU hardware.
+Thus, the mathematical pipeline developed throughout these notes, from bits in memory (Section 1), through geometry (Section 2), coordinate transforms (Sections 3--4), rasterization (Section 5), and lighting (Section 6), maps directly and completely onto the structure of a single ShaderLab file, executable on real GPU hardware.
 
 \begin{equation}
     \text{Bits} \rightarrow \text{Vertices} \rightarrow \text{Clip Space} \rightarrow \text{Fragments} \rightarrow \text{Shading} \rightarrow \text{Pixels}
@@ -2265,7 +2265,7 @@ An \textbf{unlit shader} computes a colour for every fragment without consulting
 
 \subsection{Basic Colour}
 
-The most elementary unlit shader outputs a single, solid colour across the entire surface. There is one material property, one line of vertex computation, and one line of fragment computation. The geometry is transformed correctly, rasterized correctly, and coverage-tested correctly --- yet the fragment shader discards every interpolated attribute and returns a constant.
+The most elementary unlit shader outputs a single, solid colour across the entire surface. There is one material property, one line of vertex computation, and one line of fragment computation. The geometry is transformed correctly, rasterized correctly, and coverage-tested correctly, yet the fragment shader discards every interpolated attribute and returns a constant.
 
 \paragraph{Scene setup.}
 
@@ -2290,7 +2290,7 @@ The scene contains two objects: a Unity primitive sphere and the main camera (Fi
     \label{fig:scene_setup}
 \end{figure}
 
-The camera's view frustum is therefore aligned with $-z$ pointing into the scene. The sphere sits at the origin, which in view space maps to $(0, 0, 5)$ --- squarely in front of the near and far clipping planes. The coordinate transform chain from Section 4 applies without modification:
+The camera's view frustum is therefore aligned with $-z$ pointing into the scene. The sphere sits at the origin, which in view space maps to $(0, 0, 5)$, squarely in front of the near and far clipping planes. The coordinate transform chain from Section 4 applies without modification:
 
 \begin{equation}
     \mathbf{v}_{clip} = M_{proj} \cdot M_{view} \cdot M_{model} \cdot \mathbf{v}_{local}
@@ -2378,7 +2378,7 @@ struct MeshData     { float4 vertex : POSITION; };
 struct Interpolators{ float4 vertex : SV_POSITION; };
 \end{lstlisting}
 
-\texttt{MeshData} requests exactly one attribute from the vertex buffer: the local-space position, bound by the \texttt{POSITION} semantic. Normals, UVs, tangents, and vertex colours are all present in the sphere's vertex buffer --- Unity's primitive sphere is a fully-attributed mesh --- but the shader does not declare them and so the GPU does not fetch them. This is a deliberate choice: since the fragment shader will not use any of that data, there is no reason to carry it through the pipeline.
+\texttt{MeshData} requests exactly one attribute from the vertex buffer: the local-space position, bound by the \texttt{POSITION} semantic. Normals, UVs, tangents, and vertex colours are all present in the sphere's vertex buffer, Unity's primitive sphere is a fully-attributed mesh, but the shader does not declare them and so the GPU does not fetch them. This is a deliberate choice: since the fragment shader will not use any of that data, there is no reason to carry it through the pipeline.
 
 \texttt{Interpolators} carries only the mandatory \texttt{SV\_POSITION} output. With no other varyings declared, the rasterizer has nothing to interpolate across the triangle surface.
 
@@ -2411,19 +2411,19 @@ float4 frag(Interpolators i) : SV_Target
 }
 \end{lstlisting}
 
-The fragment shader is a constant function. The parameter \texttt{i} is received but never read --- there is nothing in \texttt{Interpolators} beyond the position, which is consumed by the rasterizer and not forwarded to the fragment shader anyway. Every fragment, regardless of where on the sphere it lies, returns the same \texttt{float4} value: the red colour set in the inspector.
+The fragment shader is a constant function. The parameter \texttt{i} is received but never read, there is nothing in \texttt{Interpolators} beyond the position, which is consumed by the rasterizer and not forwarded to the fragment shader anyway. Every fragment, regardless of where on the sphere it lies, returns the same \texttt{float4} value: the red colour set in the inspector.
 
 \paragraph{Render output.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.82\textwidth]{../data/images/unlit_color.png}
-    \caption{The rendered output. The sphere appears as a flat red disc on a black background. The silhouette is geometrically correct --- the rasterizer computed triangle coverage accurately --- but without any variation in the fragment output there is no visual information about the curvature of the surface.}
+    \caption{The rendered output. The sphere appears as a flat red disc on a black background. The silhouette is geometrically correct, the rasterizer computed triangle coverage accurately, but without any variation in the fragment output there is no visual information about the curvature of the surface.}
     \label{fig:unlit_render}
 \end{figure}
 
 The result (Figure~\ref{fig:unlit_render}) is a perfectly uniform red disc. The silhouette is exactly what the rasterizer computed from the sphere's clip-space triangle coverage: the projection of a sphere onto the image plane is an ellipse, which at this camera position is a circle. The shape is correct. Yet the surface reads as flat because the fragment shader emits no variation in colour. In a lit shader, the per-fragment world-space normal $\hat{\mathbf{n}}$ would modulate the output through the Lambertian term $\max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})$, darkening fragments where the surface faces away from the light and producing the shading gradient that communicates curvature to the eye. Here, that term is absent entirely.
 
-This is the key property of an unlit shader: the rasterizer runs in full, correctly determining which pixels belong to the surface, but the fragment stage treats every one of those pixels identically. The geometry is present in the pipeline --- its clip-space position drove the coverage calculation --- it is simply not used in the shading decision.
+This is the key property of an unlit shader: the rasterizer runs in full, correctly determining which pixels belong to the surface, but the fragment stage treats every one of those pixels identically. The geometry is present in the pipeline, its clip-space position drove the coverage calculation, it is simply not used in the shading decision.
 
 \end{document}

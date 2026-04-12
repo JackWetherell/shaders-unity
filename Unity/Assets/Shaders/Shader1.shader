@@ -28,7 +28,7 @@ Shader "Unlit/Shader1"
             struct Interpolators
             {
                 float4 vertex : SV_POSITION;
-                float3 normal: TEXCOORD0;
+                float3 normal : NORMAL;
             };
 
             Interpolators vert(MeshData v)
@@ -41,7 +41,7 @@ Shader "Unlit/Shader1"
 
             float4 frag(Interpolators i) : SV_Target
             {
-                return (i.normal, 1);
+                return float4(i.normal, 1);
             }
             ENDCG
         }

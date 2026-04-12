@@ -123,7 +123,7 @@
 \contentsline {subsection}{\numberline {9.7}Swizzling}{35}{subsection.9.7}%
 \contentsline {paragraph}{Component names.}{35}{subsection.9.7}%
 \contentsline {paragraph}{Reading components.}{35}{subsection.9.7}%
-\contentsline {paragraph}{Reordering and repeating components.}{36}{lstnumber.-9.8}%
+\contentsline {paragraph}{Reordering and repeating components.}{35}{lstnumber.-9.8}%
 \contentsline {paragraph}{Writing via swizzle.}{36}{lstnumber.-10.6}%
 \contentsline {paragraph}{Common patterns in Unity shaders.}{36}{lstnumber.-11.3}%
 \contentsline {subsection}{\numberline {9.8}Data Flow Summary}{36}{subsection.9.8}%
