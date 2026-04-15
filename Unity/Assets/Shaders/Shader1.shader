@@ -2,7 +2,10 @@ Shader "Unlit/Shader1"
 {
     Properties
     {
-        _Color ("Color", Color) = (1, 1, 1, 1)
+        _ColorA ("ColorA", Color) = (0, 0, 0, 0)
+        _ColorB ("ColorB", Color) = (1, 1, 1, 1)
+        _Scale("UV Scale", float) = 1
+        _Offset("UV Offset", float) = 0
     }
 
     SubShader
@@ -17,7 +20,10 @@ Shader "Unlit/Shader1"
 
             #include "UnityCG.cginc"
 
-            float4 _Color;
+            float4 _ColorA;
+            float4 _ColorB;
+            float _Scale;
+            float _Offset;
 
             struct MeshData
             {
@@ -39,13 +45,14 @@ Shader "Unlit/Shader1"
                 Interpolators o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.normal = UnityObjectToWorldNormal(v.normal);
-                o.uv = v.uv;
+                o.uv = (v.uv + _Offset) * _Scale;
                 return o;
             }
 
             float4 frag(Interpolators i) : SV_Target
             {
-                return float4(i.uv, 0, 1);
+                float4 outColor = lerp(_ColorA, _ColorB, i.uv.x);
+                return outColor;
             }
             ENDCG
         }
