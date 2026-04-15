@@ -2493,4 +2493,150 @@ A computation belongs in the vertex shader when two conditions hold simultaneous
 
 In \texttt{Shader1}, the vertex shader performs the MVP transform (correct, one matrix multiply per vertex) and the fragment shader returns \texttt{\_Color} (a uniform constant, which costs nothing regardless of stage). There is no computation to redistribute. When lighting is introduced, the normal transform will be added to the vertex shader and the $\max(0, \hat{\mathbf{n}} \cdot \hat{\mathbf{l}})$ evaluation will go in the fragment shader, with \texttt{normalize} preceding it to correct the interpolated normal length.
 
+
+\subsection{UV Coordinates and Linear Interpolation}
+
+In Section 10.1 the fragment shader returned a constant, and the interpolators carried no data beyond the clip-space position required by the rasterizer. This subsection extends the shader with a single varying, the texture coordinate (UV), and uses it to drive a spatial blend between two colours. The resulting render is the first in which the fragment output varies across the surface, and the variation is produced without any texture sampling: the rasterizer's interpolation hardware alone does the work.
+
+\paragraph{What UVs are.}
+
+UV coordinates are a per-vertex 2D attribute, conventionally written $(u, v) \in [0, 1]^2$, that parameterise the surface of a mesh. Each vertex in the vertex buffer carries a UV value authored by the mesh creator, or generated automatically for Unity primitives. The coordinates have no geometric meaning on their own, they are simply numbers stored alongside the position and normal. Their usefulness comes from what happens downstream. Because they are declared as a varying and interpolated linearly across each triangle by the rasterizer (Section 5.3), every fragment receives a blended UV computed from the three vertex values using barycentric weights. Anything indexed by those coordinates, a texture lookup, an arithmetic formula, a colour blend, then varies smoothly across the surface.
+
+\paragraph{The shader.}
+
+The updated \texttt{Shader1.shader} replaces the single \texttt{\_Color} property with two colours and two scalar UV transform parameters, declares a UV input attribute, carries it through \texttt{Interpolators}, and blends between the two colours in the fragment stage:
+
+\begin{lstlisting}
+Shader "Unlit/Shader1"
+{
+    Properties
+    {
+        _ColorA ("ColorA", Color) = (0, 0, 0, 0)
+        _ColorB ("ColorB", Color) = (1, 1, 1, 1)
+        _Scale  ("UV Scale",  float) = 1
+        _Offset ("UV Offset", float) = 0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" }
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            float4 _ColorA;
+            float4 _ColorB;
+            float  _Scale;
+            float  _Offset;
+
+            struct MeshData
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                float2 uv     : TEXCOORD1;
+            };
+
+            struct Interpolators
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : NORMAL;
+                float2 uv     : TEXCOORD0;
+            };
+
+            Interpolators vert(MeshData v)
+            {
+                Interpolators o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                o.uv     = (v.uv + _Offset) * _Scale;
+                return o;
+            }
+
+            float4 frag(Interpolators i) : SV_Target
+            {
+                float4 outColor = lerp(_ColorA, _ColorB, i.uv.x);
+                return outColor;
+            }
+            ENDCG
+        }
+    }
+}
+\end{lstlisting}
+
+\paragraph{Properties.}
+
+Four uniforms are declared. \texttt{\_ColorA} and \texttt{\_ColorB} are the two endpoints of the colour blend, and \texttt{\_Scale} and \texttt{\_Offset} are scalar parameters applied to the UVs before they reach the fragment stage. All four are per-draw-call constants, uploaded once by the CPU into a constant buffer and read identically by every shader invocation, exactly as described for \texttt{\_Color} in Section 10.1.
+
+\paragraph{Requesting vertex attributes.}
+
+\begin{lstlisting}
+struct MeshData
+{
+    float4 vertex : POSITION;
+    float3 normal : NORMAL;
+    float2 uv     : TEXCOORD1;
+};
+\end{lstlisting}
+
+\texttt{MeshData} now declares three attributes instead of the single \texttt{POSITION} in Section 10.1. The identifiers after each field name, \texttt{POSITION}, \texttt{NORMAL}, and \texttt{TEXCOORD\textit{n}}, are HLSL \emph{semantics}: compile-time tags telling the GPU which channel of the vertex buffer to read into that field. The mesh's vertex buffer, described in Section 8.1, stores the attributes in an interleaved layout, and semantics are how the shader names each stream without hard-coding a byte offset. Declaring a field here is what causes the GPU to actually fetch that attribute, anything not listed is ignored at input assembly time and never leaves the vertex buffer.
+
+Of the three attributes requested, only the UV contributes to the fragment output. The normal is fetched, transformed, and carried through \texttt{Interpolators} but never read in \texttt{frag}. It is present in anticipation of later shading work rather than as a functional requirement of the current effect.
+
+\paragraph{Carrying UVs through Interpolators.}
+
+\begin{lstlisting}
+struct Interpolators
+{
+    float4 vertex : SV_POSITION;
+    float3 normal : NORMAL;
+    float2 uv     : TEXCOORD0;
+};
+\end{lstlisting}
+
+The \texttt{Interpolators} struct is the contract between the vertex shader and the fragment shader, with the rasterizer sitting in between. Every field except \texttt{SV\_POSITION} is a \emph{varying}: a value written once per vertex by \texttt{vert}, interpolated across the triangle by fixed-function hardware, and delivered to \texttt{frag} as the blended per-fragment result. The semantic names on this side of the pipeline (\texttt{TEXCOORD0}, \texttt{NORMAL}) are internal identifiers used to pair vertex outputs with fragment inputs. They no longer refer to vertex buffer channels, and the specific choice of \texttt{TEXCOORD0} for the UV is a convention, not a constraint; any unused \texttt{TEXCOORD\textit{n}} slot would serve equally well.
+
+\paragraph{UV transform in the vertex shader.}
+
+\begin{lstlisting}
+o.uv = (v.uv + _Offset) * _Scale;
+\end{lstlisting}
+
+The vertex shader applies an affine transform to the incoming UVs before passing them on. Writing $s$ for \texttt{\_Scale} and $o$ for \texttt{\_Offset}, the operation is:
+
+\begin{equation}
+    (u', v') = s \cdot \bigl( (u, v) + o \bigr)
+\end{equation}
+
+where $s$ and $o$ act uniformly on both components. Scaling stretches or compresses the apparent gradient across the surface, and offsetting slides it along the UV parameterisation. Because this transform is affine in the input UVs, and affine functions commute with barycentric interpolation, evaluating it per-vertex and then interpolating gives exactly the same result as interpolating first and then evaluating per-fragment. This is the archetypal case from Section 10.2 of a computation that belongs in the vertex stage: it varies linearly across the triangle, so moving it there is roughly $800$ times cheaper than evaluating it per-fragment at zero visual cost.
+
+\paragraph{The lerp in the fragment shader.}
+
+\begin{lstlisting}
+float4 outColor = lerp(_ColorA, _ColorB, i.uv.x);
+return outColor;
+\end{lstlisting}
+
+HLSL's \texttt{lerp(a, b, t)} evaluates the linear blend:
+
+\begin{equation}
+    \text{lerp}(a, b, t) = (1 - t) \, a + t \, b
+\end{equation}
+
+With \texttt{t = i.uv.x}, the per-fragment output colour is:
+
+\begin{equation}
+    C(u) = (1 - u) \, C_A + u \, C_B
+\end{equation}
+
+The second UV component, \texttt{i.uv.y}, is ignored entirely. Every fragment receives its own interpolated value of $u$, determined by its barycentric position within the triangle and the three vertex-UVs that bound it, and returns the corresponding point on the straight line in RGBA space between \texttt{\_ColorA} and \texttt{\_ColorB}. With $u$ clamped to $[0, 1]$ by the default sphere's parameterisation, the output sweeps continuously from $C_A$ at $u = 0$ to $C_B$ at $u = 1$.
+
+\paragraph{Why the surface is no longer flat.}
+
+In Section 10.1 the fragment shader ignored its input and returned a constant, producing a uniformly coloured disc that gave the eye no information about the shape of the sphere. Here the output still contains no lighting, no normals in the shading equation, and no shadows, yet the surface reads with more structure because the colour now varies with position on the mesh. The variation is a pure function of the UV parameterisation: wherever the sphere's authored UVs map to a small $u$, the fragment sits near \texttt{\_ColorA}, and where they map to a large $u$, it sits near \texttt{\_ColorB}. The fragment shader remains, as in Section 10.1, a function of its inputs alone with no access to the rest of the scene. The only difference is that those inputs now vary, and the rasterizer has been given a varying to carry.
+
 \end{document}

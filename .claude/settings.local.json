@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -n \"^\\\\\\\\\\\\\\\\section\\\\|^\\\\\\\\\\\\\\\\subsection\" ./notes/notes.tex)"
+      "Bash(grep -n \"^\\\\\\\\\\\\\\\\section\\\\|^\\\\\\\\\\\\\\\\subsection\" ./notes/notes.tex)",
+      "Bash(pdflatex -interaction=nonstopmode -halt-on-error notes.tex)",
+      "Read(//tmp/**)"
     ]
   }
 }

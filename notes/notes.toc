@@ -144,3 +144,12 @@
 \contentsline {paragraph}{What must stay in the fragment stage.}{42}{equation.203}%
 \contentsline {paragraph}{Decision rule.}{43}{equation.203}%
 \contentsline {paragraph}{Relevance to the current shader.}{43}{equation.203}%
+\contentsline {subsection}{\numberline {10.3}UV Coordinates and Linear Interpolation}{43}{subsection.10.3}%
+\contentsline {paragraph}{What UVs are.}{43}{subsection.10.3}%
+\contentsline {paragraph}{The shader.}{43}{subsection.10.3}%
+\contentsline {paragraph}{Properties.}{44}{lstnumber.-19.59}%
+\contentsline {paragraph}{Requesting vertex attributes.}{44}{lstnumber.-19.59}%
+\contentsline {paragraph}{Carrying UVs through Interpolators.}{45}{lstnumber.-20.6}%
+\contentsline {paragraph}{UV transform in the vertex shader.}{45}{lstnumber.-21.6}%
+\contentsline {paragraph}{The lerp in the fragment shader.}{45}{equation.204}%
+\contentsline {paragraph}{Why the surface is no longer flat.}{46}{equation.206}%
