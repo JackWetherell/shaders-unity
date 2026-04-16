@@ -18,6 +18,7 @@ Before writing a single line of shader code, the aim is to understand what the h
 - How the rasterizer converts triangles into fragments, and how barycentric coordinates drive interpolation
 - How lighting models (Lambertian diffuse, ambient) are derived from physical principles
 - How the GPU executes thousands of shader invocations in parallel via SIMD
+- How uv coordinates encode data and how it relates to textures.
 
 This theory is documented in [`notes/notes.tex`](notes/notes.tex) (compiled to [`notes/notes.pdf`](notes/notes.pdf)), a reference titled *"From Bits to Pixels: The Mathematical and Physical Foundations of elementary 3D Graphics"*.
 
