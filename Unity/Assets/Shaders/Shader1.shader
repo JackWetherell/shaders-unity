@@ -29,7 +29,7 @@ Shader "Unlit/Shader1"
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
-                float2 uv : TEXCOORD1;
+                float2 uv : TEXCOORD0;
             };
 
             struct Interpolators
