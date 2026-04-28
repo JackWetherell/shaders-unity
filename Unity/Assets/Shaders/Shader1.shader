@@ -20,6 +20,8 @@ Shader "Unlit/Shader1"
 
             #include "UnityCG.cginc"
 
+            #define TAU 6.2831853
+
             float4 _ColorA;
             float4 _ColorB;
             float _ColorStart;
@@ -56,10 +58,8 @@ Shader "Unlit/Shader1"
 
             float4 frag(Interpolators i) : SV_Target
             {
-                float t = inverse_lerp(_ColorStart, _ColorEnd, i.uv.x);
-                t = clamp(t, 0, 1);
-                float4 outColor = lerp(_ColorA, _ColorB, t);
-                return outColor;
+                float t = cos(i.uv.x * TAU * 3);
+                return t;
             }
             ENDCG
         }
