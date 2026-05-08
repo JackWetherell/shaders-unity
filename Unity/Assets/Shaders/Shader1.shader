@@ -58,7 +58,8 @@ Shader "Unlit/Shader1"
 
             float4 frag(Interpolators i) : SV_Target
             {
-                float t = cos(i.uv.x * TAU * 5);
+                float xOffset = i.uv.y;
+                float t = cos((i.uv.x + xOffset) * TAU * 5);
                 return t;
             }
             ENDCG
